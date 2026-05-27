@@ -9,7 +9,10 @@ import { Types } from "mongoose";
 
 export async function GET() {
   const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session) return NextResponse.json({
+    totalAssets: 0, activeBookings: 0, monthlyRevenue: 0, overdueInvoices: 0,
+    assetsByCategory: [], revenueByMonth: [], recentBookings: [],
+  });
 
   await connectDB();
 
