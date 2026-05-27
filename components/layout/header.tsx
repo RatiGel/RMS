@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/language-context";
 import { useCurrency, Currency } from "@/contexts/currency-context";
 import { Locale } from "@/lib/i18n/translations";
+import { logout } from "@/app/actions/auth";
 
 const localeLabels: Record<Locale, string> = {
   en: "EN",
@@ -26,7 +27,16 @@ const currencyLabels: Record<Currency, string> = {
   GEL: "₾",
 };
 
-export function Header() {
+interface HeaderProps {
+  userName?: string;
+  orgName?: string;
+}
+
+function initials(name: string) {
+  return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
+}
+
+export function Header({ userName = "User", orgName = "My Organization" }: HeaderProps) {
   const { t, locale, setLocale } = useLanguage();
   const { currency, setCurrency } = useCurrency();
 
@@ -84,11 +94,13 @@ export function Header() {
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-2 pl-2 rounded-md px-2 py-1.5 hover:bg-accent transition-colors outline-none">
             <Avatar className="h-7 w-7">
-              <AvatarFallback className="text-xs bg-primary text-primary-foreground">AC</AvatarFallback>
+              <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+                {initials(userName)}
+              </AvatarFallback>
             </Avatar>
             <div className="text-left hidden sm:block">
-              <p className="text-sm font-medium leading-none">Admin User</p>
-              <p className="text-xs text-muted-foreground mt-0.5">AcmeCorp Rentals</p>
+              <p className="text-sm font-medium leading-none">{userName}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{orgName}</p>
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
@@ -97,7 +109,13 @@ export function Header() {
             <DropdownMenuItem>{t.header.profile}</DropdownMenuItem>
             <DropdownMenuItem>{t.header.organization}</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">{t.header.signOut}</DropdownMenuItem>
+            <form action={logout} className="w-full">
+              <DropdownMenuItem className="text-destructive cursor-pointer" onClick={() => {}}>
+                <button type="submit" className="w-full text-left">
+                  {t.header.signOut}
+                </button>
+              </DropdownMenuItem>
+            </form>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

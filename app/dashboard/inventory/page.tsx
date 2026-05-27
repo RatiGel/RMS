@@ -2,27 +2,54 @@
 
 import { useState } from "react";
 import { Plus, Search, Filter } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { mockAssets } from "@/lib/mock/assets";
-import { mockCategories } from "@/lib/mock/categories";
+import { Skeleton } from "@/components/ui/skeleton";
 import { AssetCard } from "@/components/inventory/asset-card";
 import { AssetFormDialog } from "@/components/inventory/asset-form-dialog";
-import { Asset, AssetStatus } from "@/types";
+import { Asset, AssetStatus, Category } from "@/types";
 import { useLanguage } from "@/contexts/language-context";
 
 export default function InventoryPage() {
   const { t } = useLanguage();
-  const [assets, setAssets] = useState(mockAssets);
+  const queryClient = useQueryClient();
+
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState<AssetStatus | "all">("all");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
 
+  const { data: assets = [], isLoading: loadingAssets } = useQuery<Asset[]>({
+    queryKey: ["assets"],
+    queryFn: () => fetch("/api/assets").then((r) => r.json()),
+  });
+
+  const { data: categories = [] } = useQuery<Category[]>({
+    queryKey: ["categories"],
+    queryFn: () => fetch("/api/categories").then((r) => r.json()),
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (data: Partial<Asset>) =>
+      fetch("/api/assets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then((r) => r.json()),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["assets"] }); toast.success("Asset created"); },
+    onError: () => toast.error("Failed to create asset"),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...data }: Partial<Asset> & { id: string }) =>
+      fetch(`/api/assets/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then((r) => r.json()),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["assets"] }); toast.success("Asset updated"); },
+    onError: () => toast.error("Failed to update asset"),
+  });
+
   const filtered = assets.filter((a) => {
-    const matchSearch = a.name.toLowerCase().includes(search.toLowerCase()) ||
+    const matchSearch =
+      a.name.toLowerCase().includes(search.toLowerCase()) ||
       a.serialNumber?.toLowerCase().includes(search.toLowerCase());
     const matchCategory = categoryFilter === "all" || a.categoryId === categoryFilter;
     const matchStatus = statusFilter === "all" || a.status === statusFilter;
@@ -66,7 +93,7 @@ export default function InventoryPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{t.inventory.allCategories}</SelectItem>
-            {mockCategories.map((c) => (
+            {categories.map((c) => (
               <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
             ))}
           </SelectContent>
@@ -85,27 +112,33 @@ export default function InventoryPage() {
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <button
-          onClick={() => { setEditingAsset(null); setDialogOpen(true); }}
-          className="flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-muted-foreground/25 p-10 text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary hover:bg-primary/5 min-h-[180px]"
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-current">
-            <Plus className="h-6 w-6" />
-          </div>
-          <span className="text-sm font-medium">{t.inventory.addAsset}</span>
-        </button>
+      {loadingAssets ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-48 rounded-xl" />)}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <button
+            onClick={() => { setEditingAsset(null); setDialogOpen(true); }}
+            className="flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-muted-foreground/25 p-10 text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary hover:bg-primary/5 min-h-[180px]"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-current">
+              <Plus className="h-6 w-6" />
+            </div>
+            <span className="text-sm font-medium">{t.inventory.addAsset}</span>
+          </button>
 
-        {filtered.length === 0 ? null : filtered.map((asset) => (
-          <AssetCard
-            key={asset.id}
-            asset={asset}
-            onEdit={() => { setEditingAsset(asset); setDialogOpen(true); }}
-          />
-        ))}
-      </div>
+          {filtered.map((asset) => (
+            <AssetCard
+              key={asset.id}
+              asset={asset}
+              onEdit={() => { setEditingAsset(asset); setDialogOpen(true); }}
+            />
+          ))}
+        </div>
+      )}
 
-      {filtered.length === 0 && (
+      {!loadingAssets && filtered.length === 0 && (
         <p className="text-center text-muted-foreground text-sm -mt-2">{t.inventory.noAssets}</p>
       )}
 
@@ -113,18 +146,12 @@ export default function InventoryPage() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         asset={editingAsset}
-        categories={mockCategories}
+        categories={categories}
         onSave={(data) => {
           if (editingAsset) {
-            setAssets((prev) => prev.map((a) => a.id === editingAsset.id ? { ...a, ...data } : a));
+            updateMutation.mutate({ id: editingAsset.id, ...data });
           } else {
-            const newAsset: Asset = {
-              ...data,
-              id: `ast-${Date.now()}`,
-              createdAt: new Date().toISOString().split("T")[0],
-              totalBookings: 0,
-            } as Asset;
-            setAssets((prev) => [...prev, newAsset]);
+            createMutation.mutate(data);
           }
           setDialogOpen(false);
         }}

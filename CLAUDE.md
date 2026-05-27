@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Critical: Next.js version
+
+This project runs **Next.js 16.2.6** (not 14). APIs and file conventions may differ from training data. Read `node_modules/next/dist/docs/` before writing any Next.js-specific code.
+
 ## Critical: shadcn v4 / @base-ui/react
 
 This project uses **shadcn v4** which is built on `@base-ui/react`, NOT `@radix-ui/react`. Key differences:
@@ -41,6 +45,13 @@ app/
 
 All dashboard pages are `"use client"` — they consume the LanguageContext and manage local state.
 
+### Contexts
+
+Two custom React Contexts wrap the root layout (`LanguageProvider > CurrencyProvider > children`):
+
+- `useLanguage()` — locale + translations (see i18n section)
+- `useCurrency()` — active currency (`USD`/`GEL`), `formatCurrency(n)`, `currencySymbol`. Lives in `contexts/currency-context.tsx`. Any component displaying money must use this instead of `utils/format.ts:formatCurrency`.
+
 ### i18n
 
 Custom React Context, no next-intl. Two locales: `en`, `ka` (Georgian/Mkhedruli).
@@ -70,15 +81,49 @@ Single source of truth for: `Asset`, `Booking`, `Customer`, `Invoice`, `InvoiceL
 
 ### Utilities
 
-`utils/format.ts`: `formatCurrency(n)`, `formatDate(str)`, `daysBetween(start, end)`  
-`lib/utils.ts`: `cn(...)` — Tailwind class merging via `clsx` + `tailwind-merge`
+`utils/format.ts`: `formatCurrency(n)` (locale-unaware, avoid in UI — use `useCurrency()` instead), `formatDate(str)`, `daysBetween(start, end)`  
+`lib/utils.ts`: `cn(...)` — Tailwind class merging via `clsx` + `tailwind-merge`  
+`sonner` (`components/ui/sonner.tsx`): toast notifications — use `import { toast } from "sonner"` for mutation feedback
 
-## Phase 2 checklist (not started)
+## Phase 2 — implemented
 
-1. MongoDB Atlas connection singleton (`lib/db.ts`)
-2. Mongoose models with `orgId` on every document (multi-tenant)
-3. NextAuth.js — credentials provider, JWT with `userId/orgId/role`, middleware protecting `/dashboard/**`
-4. API route handlers (Next.js App Router `route.ts` files)
-5. Business logic: availability checking, auto-invoice generation, overdue detection
-6. Replace mock imports with react-query hooks
-7. Financial reporting via MongoDB aggregation pipelines
+### Auth stack (no next-auth — native Next.js 16 pattern)
+
+- Session: `app/lib/session.ts` — `jose` JWT in httpOnly cookie `rms_session` (7-day expiry)
+- DAL: `app/lib/dal.ts` — `verifyAuth()` (redirects) + `getCurrentUser()` (returns session or null)
+- Server Actions: `app/actions/auth.ts` — `signup`, `login`, `logout`
+- Route protection: `proxy.ts` (not `middleware.ts`) — optimistic cookie check, redirects unauthenticated → `/login`
+- Zod schemas: `app/lib/definitions.ts`
+
+### MongoDB / Mongoose
+
+- Singleton: `lib/db.ts` — cached connection in `global.mongoose`
+- Models: `models/` — Organization, User, Category, Asset, Customer, Booking, Invoice, Payment
+- Every model has `orgId` (multi-tenant isolation)
+- `orgId` scoped on every API query — never leak cross-org data
+
+### API routes (`app/api/`)
+
+All routes check `getSession()` → 401 if missing. Dynamic params use `await ctx.params` (Next.js 16 pattern).
+
+| Route | Methods |
+|---|---|
+| `/api/assets`, `/api/assets/[id]` | GET, POST, PUT, DELETE |
+| `/api/categories`, `/api/categories/[id]` | GET, POST, PUT, DELETE |
+| `/api/bookings`, `/api/bookings/[id]` | GET, POST (with conflict check), PUT, DELETE |
+| `/api/customers`, `/api/customers/[id]` | GET, POST, PUT, DELETE |
+| `/api/invoices`, `/api/invoices/[id]` | GET, POST (auto invoice number), PUT |
+| `/api/payments` | GET, POST (auto-updates invoice status) |
+| `/api/dashboard` | GET (aggregated KPIs + charts data) |
+
+### Frontend
+
+- `app/providers.tsx` — `QueryClientProvider` wrapping root layout
+- All dashboard pages use `useQuery` / `useMutation` from `@tanstack/react-query` v5
+- Toasts via `sonner` on all mutations (`toast.success` / `toast.error`)
+- Dashboard layout is a server component — calls `verifyAuth()`, passes `userName`/`orgName` props to `<Header>`
+- Auth pages: `/login`, `/register` — `useActionState` + Server Actions, shadcn Card layout
+
+### Auth registration flow
+
+First user to register creates an Organization (owner role). Subsequent users must be invited (not yet built).

@@ -2,28 +2,55 @@
 
 import { useState } from "react";
 import { Plus, Search } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
-import { mockBookings } from "@/lib/mock/bookings";
+import { Skeleton } from "@/components/ui/skeleton";
 import { BookingStatusBadge } from "@/components/shared/status-badge";
 import { BookingFormDialog } from "@/components/bookings/booking-form-dialog";
-import { Booking, BookingStatus } from "@/types";
+import { Booking, BookingStatus, Asset, Customer } from "@/types";
 import { formatDate } from "@/utils/format";
 import { useCurrency } from "@/contexts/currency-context";
-import { mockAssets } from "@/lib/mock/assets";
-import { mockCustomers } from "@/lib/mock/customers";
 import { useLanguage } from "@/contexts/language-context";
 
 export default function BookingsPage() {
   const { t } = useLanguage();
   const { formatCurrency } = useCurrency();
-  const [bookings, setBookings] = useState(mockBookings);
+  const queryClient = useQueryClient();
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<BookingStatus | "all">("all");
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  const { data: bookings = [], isLoading } = useQuery<Booking[]>({
+    queryKey: ["bookings"],
+    queryFn: () => fetch("/api/bookings").then((r) => r.json()),
+  });
+
+  const { data: assets = [] } = useQuery<Asset[]>({
+    queryKey: ["assets"],
+    queryFn: () => fetch("/api/assets").then((r) => r.json()),
+  });
+
+  const { data: customers = [] } = useQuery<Customer[]>({
+    queryKey: ["customers"],
+    queryFn: () => fetch("/api/customers").then((r) => r.json()),
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (data: Partial<Booking>) =>
+      fetch("/api/bookings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then(async (r) => {
+        const json = await r.json();
+        if (!r.ok) throw new Error(json.error ?? "Failed to create booking");
+        return json;
+      }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["bookings"] }); toast.success("Booking created"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
 
   const filtered = bookings.filter((b) => {
     const matchSearch =
@@ -67,55 +94,54 @@ export default function BookingsPage() {
         </Select>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t.table.asset}</TableHead>
-                <TableHead>{t.table.customer}</TableHead>
-                <TableHead>{t.table.startDate}</TableHead>
-                <TableHead>{t.table.endDate}</TableHead>
-                <TableHead>{t.table.amount}</TableHead>
-                <TableHead>{t.table.deposit}</TableHead>
-                <TableHead>{t.table.status}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.length === 0 ? (
+      {isLoading ? (
+        <Skeleton className="h-64 rounded-xl" />
+      ) : (
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-12">{t.bookings.noBookings}</TableCell>
+                  <TableHead>{t.table.asset}</TableHead>
+                  <TableHead>{t.table.customer}</TableHead>
+                  <TableHead>{t.table.startDate}</TableHead>
+                  <TableHead>{t.table.endDate}</TableHead>
+                  <TableHead>{t.table.amount}</TableHead>
+                  <TableHead>{t.table.deposit}</TableHead>
+                  <TableHead>{t.table.status}</TableHead>
                 </TableRow>
-              ) : (
-                filtered.map((b) => (
-                  <TableRow key={b.id}>
-                    <TableCell className="font-medium">{b.assetName}</TableCell>
-                    <TableCell className="text-muted-foreground">{b.customerName}</TableCell>
-                    <TableCell className="text-muted-foreground">{formatDate(b.startDate)}</TableCell>
-                    <TableCell className="text-muted-foreground">{formatDate(b.endDate)}</TableCell>
-                    <TableCell className="font-medium">{formatCurrency(b.totalAmount)}</TableCell>
-                    <TableCell className="text-muted-foreground">{formatCurrency(b.depositAmount)}</TableCell>
-                    <TableCell><BookingStatusBadge status={b.status} /></TableCell>
+              </TableHeader>
+              <TableBody>
+                {filtered.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center text-muted-foreground py-12">{t.bookings.noBookings}</TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                ) : (
+                  filtered.map((b) => (
+                    <TableRow key={b.id}>
+                      <TableCell className="font-medium">{b.assetName}</TableCell>
+                      <TableCell className="text-muted-foreground">{b.customerName}</TableCell>
+                      <TableCell className="text-muted-foreground">{formatDate(b.startDate)}</TableCell>
+                      <TableCell className="text-muted-foreground">{formatDate(b.endDate)}</TableCell>
+                      <TableCell className="font-medium">{formatCurrency(b.totalAmount)}</TableCell>
+                      <TableCell className="text-muted-foreground">{formatCurrency(b.depositAmount)}</TableCell>
+                      <TableCell><BookingStatusBadge status={b.status} /></TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
 
       <BookingFormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        assets={mockAssets}
-        customers={mockCustomers}
+        assets={assets}
+        customers={customers}
         onSave={(data) => {
-          const newBooking: Booking = {
-            ...data,
-            id: `bkg-${Date.now()}`,
-            createdAt: new Date().toISOString().split("T")[0],
-          } as Booking;
-          setBookings((prev) => [newBooking, ...prev]);
+          createMutation.mutate(data);
           setDialogOpen(false);
         }}
       />
