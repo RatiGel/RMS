@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+
 import { Bell, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -40,7 +40,6 @@ function initials(name: string) {
 export function Header({ userName = "User", orgName = "My Organization" }: HeaderProps) {
   const { t, locale, setLocale } = useLanguage();
   const { currency, setCurrency } = useCurrency();
-  const [, startTransition] = useTransition();
 
   return (
     <header className="flex h-16 items-center gap-4 border-b bg-card px-6">
@@ -111,13 +110,14 @@ export function Header({ userName = "User", orgName = "My Organization" }: Heade
             <DropdownMenuItem>{t.header.profile}</DropdownMenuItem>
             <DropdownMenuItem>{t.header.organization}</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              variant="destructive"
-              className="cursor-pointer"
-              onClick={() => startTransition(async () => { await logout(); })}
-            >
-              {t.header.signOut}
-            </DropdownMenuItem>
+            <form action={logout}>
+              <button
+                type="submit"
+                className="relative flex w-full cursor-pointer items-center rounded-md px-1.5 py-1 text-sm text-destructive outline-none select-none hover:bg-destructive/10 focus:bg-destructive/10"
+              >
+                {t.header.signOut}
+              </button>
+            </form>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
