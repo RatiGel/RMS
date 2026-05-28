@@ -77,7 +77,7 @@ export async function login(
   await connectDB();
 
   const user = await User.findOne({ email });
-  if (!user) {
+  if (!user || !user.passwordHash) {
     return { message: "Invalid email or password." };
   }
 

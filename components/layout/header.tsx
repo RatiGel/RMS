@@ -1,7 +1,7 @@
 "use client";
 
 
-import { Bell, Search } from "lucide-react";
+import { Bell, Search, LogOut } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -120,6 +120,16 @@ export function Header({ userName = "User", orgName = "My Organization" }: Heade
             </form>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <form action={logout}>
+          <button
+            type="submit"
+            className="p-2 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+            title={t.header.signOut}
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </form>
       </div>
     </header>
   );

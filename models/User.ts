@@ -6,7 +6,8 @@ export interface IUser extends Document {
   orgId: Types.ObjectId;
   name: string;
   email: string;
-  passwordHash: string;
+  passwordHash?: string;
+  googleId?: string;
   role: UserRole;
   createdAt: Date;
   updatedAt: Date;
@@ -17,7 +18,8 @@ const UserSchema = new Schema<IUser>(
     orgId: { type: Schema.Types.ObjectId, ref: "Organization", required: true },
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, lowercase: true, trim: true },
-    passwordHash: { type: String, required: true },
+    passwordHash: { type: String },
+    googleId: { type: String },
     role: { type: String, enum: ["owner", "admin", "staff"], default: "owner" },
   },
   { timestamps: true }
