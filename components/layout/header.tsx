@@ -1,5 +1,6 @@
 "use client";
 
+import { useTransition } from "react";
 import { Bell, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -39,6 +40,7 @@ function initials(name: string) {
 export function Header({ userName = "User", orgName = "My Organization" }: HeaderProps) {
   const { t, locale, setLocale } = useLanguage();
   const { currency, setCurrency } = useCurrency();
+  const [, startTransition] = useTransition();
 
   return (
     <header className="flex h-16 items-center gap-4 border-b bg-card px-6">
@@ -98,10 +100,10 @@ export function Header({ userName = "User", orgName = "My Organization" }: Heade
                 {initials(userName)}
               </AvatarFallback>
             </Avatar>
-            <div className="text-left hidden sm:block">
-              <p className="text-sm font-medium leading-none">{userName}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{orgName}</p>
-            </div>
+            <span className="text-left hidden sm:flex sm:flex-col">
+              <span className="text-sm font-medium leading-none">{userName}</span>
+              <span className="text-xs text-muted-foreground mt-0.5">{orgName}</span>
+            </span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuLabel>{t.header.myAccount}</DropdownMenuLabel>
@@ -109,13 +111,13 @@ export function Header({ userName = "User", orgName = "My Organization" }: Heade
             <DropdownMenuItem>{t.header.profile}</DropdownMenuItem>
             <DropdownMenuItem>{t.header.organization}</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <form action={logout} className="w-full">
-              <DropdownMenuItem className="text-destructive cursor-pointer" onClick={() => {}}>
-                <button type="submit" className="w-full text-left">
-                  {t.header.signOut}
-                </button>
-              </DropdownMenuItem>
-            </form>
+            <DropdownMenuItem
+              variant="destructive"
+              className="cursor-pointer"
+              onClick={() => startTransition(async () => { await logout(); })}
+            >
+              {t.header.signOut}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
