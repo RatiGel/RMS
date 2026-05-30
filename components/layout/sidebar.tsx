@@ -8,15 +8,12 @@ import {
   CalendarDays,
   Users,
   FileText,
-  Settings,
   ChevronLeft,
   Building2,
-  UsersRound,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Separator } from "@/components/ui/separator";
 import { useLanguage } from "@/contexts/language-context";
 
 export function Sidebar() {
@@ -30,7 +27,6 @@ export function Sidebar() {
     { href: "/dashboard/bookings", label: t.nav.bookings, icon: CalendarDays },
     { href: "/dashboard/customers", label: t.nav.customers, icon: Users },
     { href: "/dashboard/invoices", label: t.nav.invoices, icon: FileText },
-    { href: "/dashboard/team", label: t.nav.team, icon: UsersRound },
   ];
 
   return (
@@ -70,15 +66,6 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="px-2 pb-4 space-y-1">
-        <Separator className="mb-3" />
-        <Link href="/dashboard/settings">
-          <span className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
-            <Settings className="h-4 w-4 flex-shrink-0" />
-            {!collapsed && <span>{t.nav.settings}</span>}
-          </span>
-        </Link>
-      </div>
 
       <Button
         variant="ghost"

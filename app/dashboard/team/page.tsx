@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Copy, RefreshCw, Trash2, Shield, UserCheck, UserCog } from "lucide-react";
@@ -83,6 +83,11 @@ export default function TeamPage() {
   });
 
   const [copied, setCopied] = useState(false);
+  const [joinUrl, setJoinUrl] = useState("/join");
+
+  useEffect(() => {
+    setJoinUrl(`${window.location.origin}/join`);
+  }, []);
 
   function copyCode() {
     if (!inviteData?.inviteCode) return;
@@ -90,10 +95,6 @@ export default function TeamPage() {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
-
-  const joinUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/join`
-    : "/join";
 
   return (
     <div className="space-y-6">

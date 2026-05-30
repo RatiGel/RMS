@@ -1,9 +1,10 @@
 "use client";
 
 
-import { Bell, Search, LogOut } from "lucide-react";
+import { Bell, Search, UserCircle, Settings, UsersRound } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +23,7 @@ import { logout } from "@/app/actions/auth";
 const localeLabels: Record<Locale, string> = {
   en: "EN",
   ka: "ქარ",
+  ru: "РУ",
 };
 
 const currencyLabels: Record<Currency, string> = {
@@ -32,15 +34,17 @@ const currencyLabels: Record<Currency, string> = {
 interface HeaderProps {
   userName?: string;
   orgName?: string;
+  avatarUrl?: string;
 }
 
 function initials(name: string) {
   return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
 }
 
-export function Header({ userName = "User", orgName = "My Organization" }: HeaderProps) {
+export function Header({ userName = "User", orgName = "My Organization", avatarUrl }: HeaderProps) {
   const { t, locale, setLocale } = useLanguage();
   const { currency, setCurrency } = useCurrency();
+  const router = useRouter();
 
   return (
     <header className="flex h-16 items-center gap-4 border-b bg-card px-6">
@@ -96,6 +100,7 @@ export function Header({ userName = "User", orgName = "My Organization" }: Heade
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-2 pl-2 rounded-md px-2 py-1.5 hover:bg-accent transition-colors outline-none">
             <Avatar className="h-7 w-7">
+              <AvatarImage src={avatarUrl} alt={userName} />
               <AvatarFallback className="text-xs bg-primary text-primary-foreground">
                 {initials(userName)}
               </AvatarFallback>
@@ -109,8 +114,18 @@ export function Header({ userName = "User", orgName = "My Organization" }: Heade
             <DropdownMenuGroup>
               <DropdownMenuLabel>{t.header.myAccount}</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>{t.header.profile}</DropdownMenuItem>
-              <DropdownMenuItem>{t.header.organization}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/dashboard/profile")}>
+                <UserCircle className="h-4 w-4" />
+                {t.header.profile}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
+                <Settings className="h-4 w-4" />
+                {t.nav.settings}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/dashboard/team")}>
+                <UsersRound className="h-4 w-4" />
+                {t.nav.team}
+              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <form action={logout}>
@@ -124,15 +139,6 @@ export function Header({ userName = "User", orgName = "My Organization" }: Heade
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <form action={logout}>
-          <button
-            type="submit"
-            className="p-2 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
-            title={t.header.signOut}
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
-        </form>
       </div>
     </header>
   );
