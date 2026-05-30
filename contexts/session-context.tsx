@@ -8,6 +8,7 @@ export type ClientSession = {
   role: string;
   name: string;
   orgName: string;
+  avatarUrl?: string;
 };
 
 const SessionContext = createContext<ClientSession | null>(null);
