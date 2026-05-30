@@ -11,6 +11,7 @@ import {
   Settings,
   ChevronLeft,
   Building2,
+  UsersRound,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ export function Sidebar() {
     { href: "/dashboard/bookings", label: t.nav.bookings, icon: CalendarDays },
     { href: "/dashboard/customers", label: t.nav.customers, icon: Users },
     { href: "/dashboard/invoices", label: t.nav.invoices, icon: FileText },
+    { href: "/dashboard/team", label: t.nav.team, icon: UsersRound },
   ];
 
   return (

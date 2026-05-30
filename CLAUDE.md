@@ -31,6 +31,8 @@ Required in `.env.local`:
 MONGODB_URI=          # MongoDB Atlas connection string
 SESSION_SECRET=       # 32-byte hex string for jose JWT signing
 NEXT_PUBLIC_APP_URL=  # e.g. http://localhost:3000
+GOOGLE_CLIENT_ID=     # Google OAuth app client ID
+GOOGLE_CLIENT_SECRET= # Google OAuth app client secret
 ```
 
 ## Architecture
@@ -75,6 +77,7 @@ app/
 - Route middleware: `proxy.ts` (named `proxy.ts`, not `middleware.ts`) — redirects authenticated users away from `/login`/`/register`. **`protectedRoutes` array is currently empty**, so the middleware does NOT redirect unauthenticated users away from `/dashboard`. Dashboard protection relies on `verifyAuth()` being called inside individual server components.
 - Dashboard layout (`app/dashboard/layout.tsx`) calls `getCurrentUser()` (not `verifyAuth()`), so it does **not** redirect unauthenticated users — add `verifyAuth()` calls in individual pages if auth enforcement is needed.
 - Auth pages: `/login`, `/register` — `useActionState` + Server Actions, shadcn Card layout.
+- Google OAuth: `/api/auth/google` initiates flow (PKCE state in `oauth_state` cookie), `/api/auth/google/callback` handles exchange. Requires `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET`.
 - First registrant creates an Organization (owner role). No invite flow yet.
 
 ### API routes (`app/api/`)
@@ -90,6 +93,8 @@ All routes call `getSession()`. GET routes return `[]` / empty data when unauthe
 | `/api/invoices`, `/api/invoices/[id]` | GET, POST (auto invoice number), PUT |
 | `/api/payments` | GET, POST (auto-updates invoice status) |
 | `/api/dashboard` | GET (aggregated KPIs + chart data) |
+| `/api/me` | GET (current user from session) |
+| `/api/team` | GET (all users in session's org) |
 
 ### MongoDB / Mongoose
 

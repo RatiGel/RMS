@@ -12,9 +12,11 @@ import { AssetCard } from "@/components/inventory/asset-card";
 import { AssetFormDialog } from "@/components/inventory/asset-form-dialog";
 import { Asset, AssetStatus, Category } from "@/types";
 import { useLanguage } from "@/contexts/language-context";
+import { useIsStaff } from "@/contexts/session-context";
 
 export default function InventoryPage() {
   const { t } = useLanguage();
+  const isStaff = useIsStaff();
   const queryClient = useQueryClient();
 
   const [search, setSearch] = useState("");
@@ -76,9 +78,11 @@ export default function InventoryPage() {
           <h1 className="text-2xl font-bold tracking-tight">{t.inventory.title}</h1>
           <p className="text-muted-foreground text-sm mt-1">{subtitle}</p>
         </div>
-        <Button onClick={() => { setEditingAsset(null); setDialogOpen(true); }}>
-          <Plus className="h-4 w-4 mr-2" /> {t.inventory.addAsset}
-        </Button>
+        {!isStaff && (
+          <Button onClick={() => { setEditingAsset(null); setDialogOpen(true); }}>
+            <Plus className="h-4 w-4 mr-2" /> {t.inventory.addAsset}
+          </Button>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-3">
@@ -118,15 +122,17 @@ export default function InventoryPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          <button
-            onClick={() => { setEditingAsset(null); setDialogOpen(true); }}
-            className="flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-muted-foreground/25 p-10 text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary hover:bg-primary/5 min-h-[180px]"
-          >
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-current">
-              <Plus className="h-6 w-6" />
-            </div>
-            <span className="text-sm font-medium">{t.inventory.addAsset}</span>
-          </button>
+          {!isStaff && (
+            <button
+              onClick={() => { setEditingAsset(null); setDialogOpen(true); }}
+              className="flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-muted-foreground/25 p-10 text-muted-foreground transition-colors hover:border-primary/50 hover:text-primary hover:bg-primary/5 min-h-[180px]"
+            >
+              <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-current">
+                <Plus className="h-6 w-6" />
+              </div>
+              <span className="text-sm font-medium">{t.inventory.addAsset}</span>
+            </button>
+          )}
 
           {filtered.map((asset) => (
             <AssetCard

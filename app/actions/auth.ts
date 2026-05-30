@@ -9,8 +9,10 @@ import { createSession, deleteSession } from "@/app/lib/session";
 import {
   SignupFormSchema,
   LoginFormSchema,
+  JoinFormSchema,
   SignupFormState,
   LoginFormState,
+  JoinFormState,
 } from "@/app/lib/definitions";
 
 export async function signup(
@@ -102,4 +104,54 @@ export async function login(
 export async function logout() {
   await deleteSession();
   redirect("/login");
+}
+
+export async function joinOrg(
+  state: JoinFormState,
+  formData: FormData
+): Promise<JoinFormState> {
+  const validated = JoinFormSchema.safeParse({
+    inviteCode: formData.get("inviteCode"),
+    name: formData.get("name"),
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+
+  if (!validated.success) {
+    return { errors: validated.error.flatten().fieldErrors };
+  }
+
+  const { inviteCode, name, email, password } = validated.data;
+
+  await connectDB();
+
+  const org = await Organization.findOne({ inviteCode });
+  if (!org) {
+    return { message: "Invalid invite code." };
+  }
+
+  const existing = await User.findOne({ email });
+  if (existing) {
+    return { message: "An account with this email already exists." };
+  }
+
+  const passwordHash = await bcrypt.hash(password, 12);
+
+  const user = await User.create({
+    orgId: org._id,
+    name,
+    email,
+    passwordHash,
+    role: "staff",
+  });
+
+  await createSession({
+    userId: String(user._id),
+    orgId: String(org._id),
+    role: user.role,
+    name: user.name,
+    orgName: org.name,
+  });
+
+  redirect("/dashboard");
 }

@@ -7,6 +7,7 @@ export const translations = {
       bookings: "Bookings",
       customers: "Customers",
       invoices: "Invoices",
+      team: "Team",
       settings: "Settings",
     },
     // Header
@@ -169,6 +170,7 @@ export const translations = {
       bookings: "ჯავშნები",
       customers: "კლიენტები",
       invoices: "ინვოისები",
+      team: "გუნდი",
       settings: "პარამეტრები",
     },
     // Header

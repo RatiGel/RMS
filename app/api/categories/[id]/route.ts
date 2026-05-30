@@ -26,6 +26,7 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
 export async function DELETE(req: NextRequest, ctx: Ctx) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (session.role === "staff") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { id } = await ctx.params;
   await connectDB();

@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -105,10 +106,12 @@ export function Header({ userName = "User", orgName = "My Organization" }: Heade
             </span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel>{t.header.myAccount}</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>{t.header.profile}</DropdownMenuItem>
-            <DropdownMenuItem>{t.header.organization}</DropdownMenuItem>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>{t.header.myAccount}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>{t.header.profile}</DropdownMenuItem>
+              <DropdownMenuItem>{t.header.organization}</DropdownMenuItem>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <form action={logout}>
               <button

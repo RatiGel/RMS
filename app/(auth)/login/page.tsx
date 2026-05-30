@@ -89,6 +89,10 @@ export default function LoginPage() {
             <Link href="/register" className="text-primary hover:underline font-medium">
               Create one
             </Link>
+            {" · "}
+            <Link href="/join" className="text-primary hover:underline font-medium">
+              Join org
+            </Link>
           </p>
         </CardFooter>
       </form>
