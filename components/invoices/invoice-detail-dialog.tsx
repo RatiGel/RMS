@@ -3,12 +3,15 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { Invoice } from "@/types";
 import { InvoiceStatusBadge } from "@/components/shared/status-badge";
 import { formatDate } from "@/utils/format";
 import { useCurrency } from "@/contexts/currency-context";
-import { Building2 } from "lucide-react";
+import { useSession } from "@/contexts/session-context";
+import { Building2, Download } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
+import { printInvoice } from "@/utils/print-invoice";
 
 interface InvoiceDetailDialogProps {
   invoice: Invoice | null;
@@ -18,7 +21,12 @@ interface InvoiceDetailDialogProps {
 export function InvoiceDetailDialog({ invoice, onClose }: InvoiceDetailDialogProps) {
   const { t } = useLanguage();
   const { formatCurrency } = useCurrency();
+  const session = useSession();
   if (!invoice) return null;
+
+  const handleDownloadPDF = () => {
+    printInvoice(invoice, session?.orgName ?? "—", formatCurrency, formatDate);
+  };
 
   return (
     <Dialog open={!!invoice} onOpenChange={(open) => !open && onClose()}>
@@ -26,7 +34,13 @@ export function InvoiceDetailDialog({ invoice, onClose }: InvoiceDetailDialogPro
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-lg">{invoice.invoiceNumber}</DialogTitle>
-            <InvoiceStatusBadge status={invoice.status} />
+            <div className="flex items-center gap-2">
+              <InvoiceStatusBadge status={invoice.status} />
+              <Button variant="outline" size="sm" onClick={handleDownloadPDF}>
+                <Download className="h-3.5 w-3.5 mr-1.5" />
+                PDF
+              </Button>
+            </div>
           </div>
         </DialogHeader>
 
