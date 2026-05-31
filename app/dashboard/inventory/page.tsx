@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search, Filter } from "lucide-react";
+import { Plus, Search, Filter, Pencil, Trash2, Tag } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -10,13 +10,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { AssetCard } from "@/components/inventory/asset-card";
 import { AssetFormDialog } from "@/components/inventory/asset-form-dialog";
+import { CategoryFormDialog } from "@/components/inventory/category-form-dialog";
 import { Asset, AssetStatus, Category } from "@/types";
 import { useLanguage } from "@/contexts/language-context";
-import { useIsStaff } from "@/contexts/session-context";
+import { useIsStaff, useSession } from "@/contexts/session-context";
 
 export default function InventoryPage() {
   const { t } = useLanguage();
   const isStaff = useIsStaff();
+  const session = useSession();
+  const canManageCategories = session?.role === "owner" || session?.role === "admin";
   const queryClient = useQueryClient();
 
   const [search, setSearch] = useState("");
@@ -24,6 +27,8 @@ export default function InventoryPage() {
   const [statusFilter, setStatusFilter] = useState<AssetStatus | "all">("all");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<Asset | null>(null);
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
   const { data: assets = [], isLoading: loadingAssets } = useQuery<Asset[]>({
     queryKey: ["assets"],
@@ -47,6 +52,27 @@ export default function InventoryPage() {
       fetch(`/api/assets/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then((r) => r.json()),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["assets"] }); toast.success("Asset updated"); },
     onError: () => toast.error("Failed to update asset"),
+  });
+
+  const createCategoryMutation = useMutation({
+    mutationFn: (data: { name: string; description: string }) =>
+      fetch("/api/categories", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then((r) => r.json()),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["categories"] }); toast.success("Category created"); },
+    onError: () => toast.error("Failed to create category"),
+  });
+
+  const updateCategoryMutation = useMutation({
+    mutationFn: ({ id, ...data }: { id: string; name: string; description: string }) =>
+      fetch(`/api/categories/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then((r) => r.json()),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["categories"] }); toast.success("Category updated"); },
+    onError: () => toast.error("Failed to update category"),
+  });
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: (id: string) =>
+      fetch(`/api/categories/${id}`, { method: "DELETE" }).then((r) => r.json()),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["categories"] }); toast.success("Category deleted"); },
+    onError: () => toast.error("Failed to delete category"),
   });
 
   const filtered = assets.filter((a) => {
@@ -84,6 +110,51 @@ export default function InventoryPage() {
           </Button>
         )}
       </div>
+
+      {canManageCategories && (
+        <div className="rounded-xl border bg-muted/30 p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Tag className="h-4 w-4 text-muted-foreground" />
+              Categories
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => { setEditingCategory(null); setCategoryDialogOpen(true); }}
+            >
+              <Plus className="h-4 w-4 mr-1" /> Add Category
+            </Button>
+          </div>
+          {categories.length === 0 ? (
+            <p className="text-xs text-muted-foreground">No categories yet. Add one to start organizing your inventory.</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {categories.map((cat) => (
+                <div key={cat.id} className="flex items-center gap-1 rounded-lg border bg-background px-2.5 py-1 text-sm">
+                  <span>{cat.name}</span>
+                  {cat.assetCount > 0 && (
+                    <span className="text-xs text-muted-foreground ml-1">({cat.assetCount})</span>
+                  )}
+                  <button
+                    onClick={() => { setEditingCategory(cat); setCategoryDialogOpen(true); }}
+                    className="ml-1 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <Pencil className="h-3 w-3" />
+                  </button>
+                  <button
+                    onClick={() => deleteCategoryMutation.mutate(cat.id)}
+                    className="text-muted-foreground hover:text-destructive transition-colors"
+                    disabled={deleteCategoryMutation.isPending}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-48">
@@ -160,6 +231,20 @@ export default function InventoryPage() {
             createMutation.mutate(data);
           }
           setDialogOpen(false);
+        }}
+      />
+
+      <CategoryFormDialog
+        open={categoryDialogOpen}
+        onOpenChange={setCategoryDialogOpen}
+        category={editingCategory}
+        onSave={(data) => {
+          if (editingCategory) {
+            updateCategoryMutation.mutate({ id: editingCategory.id, ...data });
+          } else {
+            createCategoryMutation.mutate(data);
+          }
+          setCategoryDialogOpen(false);
         }}
       />
     </div>

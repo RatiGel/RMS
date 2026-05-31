@@ -1,7 +1,7 @@
 "use client";
 
 
-import { Bell, Search, UserCircle, Settings, UsersRound } from "lucide-react";
+import { Search, UserCircle, Settings, UsersRound, Sun, Moon, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,11 +14,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
+
 import { useLanguage } from "@/contexts/language-context";
+import { NotificationBell } from "@/components/layout/notification-bell";
 import { useCurrency, Currency } from "@/contexts/currency-context";
 import { Locale } from "@/lib/i18n/translations";
 import { logout } from "@/app/actions/auth";
+import { useTheme } from "next-themes";
+import { useSubscription } from "@/contexts/subscription-context";
+import { UpgradeDialog } from "@/components/subscription/upgrade-dialog";
+import { useState } from "react";
 
 const localeLabels: Record<Locale, string> = {
   en: "EN",
@@ -44,10 +49,13 @@ function initials(name: string) {
 export function Header({ userName = "User", orgName = "My Organization", avatarUrl }: HeaderProps) {
   const { t, locale, setLocale } = useLanguage();
   const { currency, setCurrency } = useCurrency();
+  const { setTheme, resolvedTheme } = useTheme();
+  const { plan, canAccessTeam } = useSubscription();
   const router = useRouter();
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   return (
-    <header className="flex h-16 items-center gap-4 border-b bg-card px-6">
+    <header className="flex h-16 items-center gap-4 border-b bg-card/95 backdrop-blur-sm px-6 shadow-sm">
       <div className="flex-1 max-w-sm">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -90,12 +98,16 @@ export function Header({ userName = "User", orgName = "My Organization", avatarU
           ))}
         </div>
 
-        <button className="relative p-2 rounded-md hover:bg-accent transition-colors">
-          <Bell className="h-4 w-4" />
-          <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]">
-            2
-          </Badge>
+        <button
+          onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+          className="flex items-center justify-center rounded-md border p-1.5 hover:bg-accent transition-colors"
+          aria-label="Toggle theme"
+        >
+          <Sun className="h-4 w-4 hidden dark:block" />
+          <Moon className="h-4 w-4 dark:hidden" />
         </button>
+
+        <NotificationBell />
 
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-2 pl-2 rounded-md px-2 py-1.5 hover:bg-accent transition-colors outline-none">
@@ -122,10 +134,18 @@ export function Header({ userName = "User", orgName = "My Organization", avatarU
                 <Settings className="h-4 w-4" />
                 {t.nav.settings}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push("/dashboard/team")}>
-                <UsersRound className="h-4 w-4" />
-                {t.nav.team}
-              </DropdownMenuItem>
+              {!canAccessTeam ? (
+                <DropdownMenuItem onClick={() => setUpgradeOpen(true)} className="text-muted-foreground/60">
+                  <UsersRound className="h-4 w-4 opacity-50" />
+                  <span className="flex-1">{t.nav.team}</span>
+                  <Lock className="h-3 w-3 opacity-50" />
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem onClick={() => router.push("/dashboard/team")}>
+                  <UsersRound className="h-4 w-4" />
+                  {t.nav.team}
+                </DropdownMenuItem>
+              )}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <form action={logout}>
@@ -140,6 +160,8 @@ export function Header({ userName = "User", orgName = "My Organization", avatarU
         </DropdownMenu>
 
       </div>
+
+      <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} currentPlan={plan} />
     </header>
   );
 }

@@ -47,6 +47,7 @@ app/
     layout.tsx
     login/page.tsx
     register/page.tsx
+    join/page.tsx         # invite-code registration
   actions/auth.ts         # Server Actions: signup, login, logout
   lib/
     session.ts            # jose JWT: createSession, getSession, deleteSession, decrypt
@@ -67,6 +68,8 @@ app/
     bookings/page.tsx
     customers/page.tsx
     invoices/page.tsx
+    profile/page.tsx
+    team/page.tsx
 ```
 
 ### Auth stack
@@ -78,7 +81,7 @@ app/
 - Dashboard layout (`app/dashboard/layout.tsx`) calls `getCurrentUser()` (not `verifyAuth()`), so it does **not** redirect unauthenticated users — add `verifyAuth()` calls in individual pages if auth enforcement is needed.
 - Auth pages: `/login`, `/register` — `useActionState` + Server Actions, shadcn Card layout.
 - Google OAuth: `/api/auth/google` initiates flow (PKCE state in `oauth_state` cookie), `/api/auth/google/callback` handles exchange. Requires `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET`.
-- First registrant creates an Organization (owner role). No invite flow yet.
+- First registrant creates an Organization (owner role). Invite flow: owner/admin generates a code via `GET/POST /api/invite`; new user registers at `/join` via `joinOrg` Server Action (validates code, creates User with `staff` role).
 
 ### API routes (`app/api/`)
 
@@ -94,7 +97,9 @@ All routes call `getSession()`. GET routes return `[]` / empty data when unauthe
 | `/api/payments` | GET, POST (auto-updates invoice status) |
 | `/api/dashboard` | GET (aggregated KPIs + chart data) |
 | `/api/me` | GET (current user from session) |
-| `/api/team` | GET (all users in session's org) |
+| `/api/org` | PATCH (update org name; owner/admin only) |
+| `/api/invite` | GET (fetch invite code), POST (regenerate; owner/admin only) |
+| `/api/team`, `/api/team/[id]` | GET (org members), PUT/DELETE (update/remove member) |
 
 ### MongoDB / Mongoose
 

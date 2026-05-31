@@ -76,9 +76,9 @@ export function AssetFormDialog({ open, onOpenChange, asset, categories, onSave 
             </div>
             <div className="space-y-1.5">
               <Label>{t.inventory.category} *</Label>
-              <Select value={form.categoryId} onValueChange={(v) => setForm((p) => ({ ...p, categoryId: v ?? "" }))} required>
+              <Select value={form.categoryId || null} onValueChange={(v) => setForm((p) => ({ ...p, categoryId: v ?? "" }))} required>
                 <SelectTrigger><SelectValue placeholder={t.inventory.selectCategory} /></SelectTrigger>
-                <SelectContent>
+                <SelectContent alignItemWithTrigger={false}>
                   {categories.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -87,7 +87,7 @@ export function AssetFormDialog({ open, onOpenChange, asset, categories, onSave 
               <Label>{t.common.status}</Label>
               <Select value={form.status} onValueChange={(v) => setForm((p) => ({ ...p, status: v as AssetStatus }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
+                <SelectContent alignItemWithTrigger={false}>
                   <SelectItem value="available">{t.status.asset.available}</SelectItem>
                   <SelectItem value="rented">{t.status.asset.rented}</SelectItem>
                   <SelectItem value="maintenance">{t.status.asset.maintenance}</SelectItem>

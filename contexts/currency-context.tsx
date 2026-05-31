@@ -19,7 +19,7 @@ const CURRENCY_CONFIG: Record<Currency, { locale: string; symbol: string }> = {
 };
 
 export function CurrencyProvider({ children }: { children: ReactNode }) {
-  const [currency, setCurrency] = useState<Currency>("USD");
+  const [currency, setCurrency] = useState<Currency>("GEL");
 
   const value = useMemo(() => {
     const { locale, symbol } = CURRENCY_CONFIG[currency];

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
+import { Trash2, Pencil, Plus } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "@/contexts/session-context";
 import { useLanguage } from "@/contexts/language-context";
@@ -15,6 +15,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { CategoryFormDialog } from "@/components/inventory/category-form-dialog";
+import { Category } from "@/types";
 
 type MeData = {
   id: string;
@@ -62,6 +64,9 @@ export default function ProfilePage() {
   const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
+
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
   const { data: meData, isLoading: meLoading } = useQuery<MeData>({
     queryKey: ["me"],
@@ -126,6 +131,33 @@ export default function ProfilePage() {
       toast.success(p.orgUpdated);
     },
     onError: () => toast.error("Failed to update organization"),
+  });
+
+  const { data: categories = [] } = useQuery<Category[]>({
+    queryKey: ["categories"],
+    queryFn: () => fetch("/api/categories").then((r) => r.json()),
+    enabled: canManage,
+  });
+
+  const createCategoryMutation = useMutation({
+    mutationFn: (data: { name: string; description: string }) =>
+      fetch("/api/categories", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then((r) => r.json()),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["categories"] }); toast.success("Category added"); },
+    onError: () => toast.error("Failed to add category"),
+  });
+
+  const updateCategoryMutation = useMutation({
+    mutationFn: ({ id, ...data }: { id: string; name: string; description: string }) =>
+      fetch(`/api/categories/${id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then((r) => r.json()),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["categories"] }); toast.success("Category updated"); },
+    onError: () => toast.error("Failed to update category"),
+  });
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: (id: string) =>
+      fetch(`/api/categories/${id}`, { method: "DELETE" }).then((r) => r.json()),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["categories"] }); toast.success("Category deleted"); },
+    onError: () => toast.error("Failed to delete category"),
   });
 
   const roleMutation = useMutation({
@@ -263,6 +295,53 @@ export default function ProfilePage() {
             >
               {orgMutation.isPending ? "Saving…" : p.saveOrg}
             </Button>
+
+            <Separator />
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Equipment Categories</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Categories used when adding assets to inventory
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => { setEditingCategory(null); setCategoryDialogOpen(true); }}
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Add
+                </Button>
+              </div>
+              {categories.length === 0 ? (
+                <p className="text-xs text-muted-foreground italic">No categories yet.</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((cat) => (
+                    <div key={cat.id} className="flex items-center gap-1 rounded-lg border bg-muted/40 px-2.5 py-1 text-sm">
+                      <span>{cat.name}</span>
+                      {cat.assetCount > 0 && (
+                        <span className="text-xs text-muted-foreground ml-1">({cat.assetCount})</span>
+                      )}
+                      <button
+                        onClick={() => { setEditingCategory(cat); setCategoryDialogOpen(true); }}
+                        className="ml-1.5 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </button>
+                      <button
+                        onClick={() => deleteCategoryMutation.mutate(cat.id)}
+                        className="text-muted-foreground hover:text-destructive transition-colors"
+                        disabled={deleteCategoryMutation.isPending}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       )}
@@ -339,6 +418,19 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
       )}
+      <CategoryFormDialog
+        open={categoryDialogOpen}
+        onOpenChange={setCategoryDialogOpen}
+        category={editingCategory}
+        onSave={(data) => {
+          if (editingCategory) {
+            updateCategoryMutation.mutate({ id: editingCategory.id, ...data });
+          } else {
+            createCategoryMutation.mutate(data);
+          }
+          setCategoryDialogOpen(false);
+        }}
+      />
     </div>
   );
 }

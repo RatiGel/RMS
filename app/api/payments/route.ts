@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { Payment } from "@/models/Payment";
 import { Invoice } from "@/models/Invoice";
+import { Organization } from "@/models/Organization";
 import { getSession } from "@/app/lib/session";
 
 export async function GET(req: NextRequest) {
@@ -34,6 +35,11 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   await connectDB();
+
+  const org = await Organization.findById(session.orgId).select("plan").lean() as { plan?: string } | null;
+  if (!["pro"].includes(org?.plan ?? "trial")) {
+    return NextResponse.json({ error: "Payments require Pro plan", code: "PLAN_GATE" }, { status: 403 });
+  }
 
   const body = await req.json();
   const payment = await Payment.create({ ...body, orgId: session.orgId });

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { Asset } from "@/models/Asset";
 import { Category } from "@/models/Category";
+import { Organization } from "@/models/Organization";
 import { getSession } from "@/app/lib/session";
 
 export async function GET(req: NextRequest) {
@@ -46,6 +47,23 @@ export async function POST(req: NextRequest) {
   if (session.role === "staff") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   await connectDB();
+
+  // Enforce plan asset limits
+  const org = await Organization.findById(session.orgId).lean() as {
+    plan?: string;
+    trialStartDate?: Date;
+  } | null;
+  const plan = org?.plan ?? "trial";
+
+  if (plan === "starter") {
+    const assetCount = await Asset.countDocuments({ orgId: session.orgId });
+    if (assetCount >= 20) {
+      return NextResponse.json(
+        { error: "Asset limit reached", code: "PLAN_LIMIT", limit: 20, plan },
+        { status: 402 }
+      );
+    }
+  }
 
   const body = await req.json();
   const asset = await Asset.create({ ...body, orgId: session.orgId });

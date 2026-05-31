@@ -167,4 +167,4 @@
 - [ ] 2.4 API route handlers
 - [ ] 2.5 Business logic
 - [ ] 2.6 Connect frontend to API
-- [ ] 2.7 Financial reporting
+- [ ] 2.7 F§inancial reporting

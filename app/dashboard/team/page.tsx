@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Copy, RefreshCw, Trash2, Shield, UserCheck, UserCog } from "lucide-react";
@@ -83,11 +83,7 @@ export default function TeamPage() {
   });
 
   const [copied, setCopied] = useState(false);
-  const [joinUrl, setJoinUrl] = useState("/join");
-
-  useEffect(() => {
-    setJoinUrl(`${window.location.origin}/join`);
-  }, []);
+  const joinUrl = `${process.env.NEXT_PUBLIC_APP_URL}/join`;
 
   function copyCode() {
     if (!inviteData?.inviteCode) return;

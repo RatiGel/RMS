@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Eye } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Plus, Search, Eye } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -11,7 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InvoiceStatusBadge } from "@/components/shared/status-badge";
 import { InvoiceDetailDialog } from "@/components/invoices/invoice-detail-dialog";
-import { Invoice, InvoiceStatus } from "@/types";
+import { CreateInvoiceDialog } from "@/components/invoices/create-invoice-dialog";
+import { Booking, Invoice, InvoiceStatus } from "@/types";
 import { formatDate } from "@/utils/format";
 import { useCurrency } from "@/contexts/currency-context";
 import { useLanguage } from "@/contexts/language-context";
@@ -23,10 +25,32 @@ export default function InvoicesPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<InvoiceStatus | "all">("all");
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: invoices = [], isLoading } = useQuery<Invoice[]>({
     queryKey: ["invoices"],
     queryFn: () => fetch("/api/invoices").then((r) => r.json()),
+  });
+
+  const { data: bookings = [] } = useQuery<Booking[]>({
+    queryKey: ["bookings"],
+    queryFn: () => fetch("/api/bookings").then((r) => r.json()),
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (data: object) =>
+      fetch("/api/invoices", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then(async (r) => {
+        const json = await r.json();
+        if (!r.ok) throw new Error(json.error ?? "Failed to create invoice");
+        return json;
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      toast.success(t.invoices.invoiceCreated);
+      setCreateOpen(false);
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const filtered = invoices.filter((inv) => {
@@ -51,9 +75,14 @@ export default function InvoicesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">{t.invoices.title}</h1>
-        <p className="text-muted-foreground text-sm mt-1">{subtitle}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">{t.invoices.title}</h1>
+          <p className="text-muted-foreground text-sm mt-1">{subtitle}</p>
+        </div>
+        <Button onClick={() => setCreateOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" /> {t.invoices.newInvoice}
+        </Button>
       </div>
 
       <div className="flex flex-wrap gap-3">
@@ -129,6 +158,14 @@ export default function InvoicesPage() {
       <InvoiceDetailDialog
         invoice={selectedInvoice}
         onClose={() => setSelectedInvoice(null)}
+      />
+
+      <CreateInvoiceDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        bookings={bookings}
+        onSave={(data) => createMutation.mutate(data)}
+        isPending={createMutation.isPending}
       />
     </div>
   );

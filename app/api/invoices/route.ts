@@ -4,6 +4,7 @@ import { Invoice } from "@/models/Invoice";
 import { Booking } from "@/models/Booking";
 import { Asset } from "@/models/Asset";
 import { Customer } from "@/models/Customer";
+import { Organization } from "@/models/Organization";
 import { getSession } from "@/app/lib/session";
 
 async function serializeInvoice(inv: InstanceType<typeof Invoice>) {
@@ -49,6 +50,11 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   await connectDB();
+
+  const org = await Organization.findById(session.orgId).select("plan").lean() as { plan?: string } | null;
+  if (!["pro"].includes(org?.plan ?? "trial")) {
+    return NextResponse.json({ error: "Invoices require Pro plan", code: "PLAN_GATE" }, { status: 403 });
+  }
 
   const body = await req.json();
 

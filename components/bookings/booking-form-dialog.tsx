@@ -63,9 +63,9 @@ export function BookingFormDialog({ open, onOpenChange, assets, customers, onSav
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2 space-y-1.5">
               <Label>{t.table.asset} *</Label>
-              <Select value={form.assetId} onValueChange={(v) => setForm((p) => ({ ...p, assetId: v ?? "" }))} required>
+              <Select value={form.assetId || null} onValueChange={(v) => setForm((p) => ({ ...p, assetId: v ?? "" }))} required>
                 <SelectTrigger><SelectValue placeholder={t.bookings.selectAsset} /></SelectTrigger>
-                <SelectContent>
+                <SelectContent alignItemWithTrigger={false}>
                   {assets.filter((a) => a.status === "available").map((a) => (
                     <SelectItem key={a.id} value={a.id}>{a.name} — {formatCurrency(a.dailyRate)}/day</SelectItem>
                   ))}
@@ -74,9 +74,9 @@ export function BookingFormDialog({ open, onOpenChange, assets, customers, onSav
             </div>
             <div className="col-span-2 space-y-1.5">
               <Label>{t.table.customer} *</Label>
-              <Select value={form.customerId} onValueChange={(v) => setForm((p) => ({ ...p, customerId: v ?? "" }))} required>
+              <Select value={form.customerId || null} onValueChange={(v) => setForm((p) => ({ ...p, customerId: v ?? "" }))} required>
                 <SelectTrigger><SelectValue placeholder={t.bookings.selectCustomer} /></SelectTrigger>
-                <SelectContent>
+                <SelectContent alignItemWithTrigger={false}>
                   {customers.map((c) => (
                     <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                   ))}
@@ -95,7 +95,7 @@ export function BookingFormDialog({ open, onOpenChange, assets, customers, onSav
               <Label>{t.common.status}</Label>
               <Select value={form.status} onValueChange={(v) => setForm((p) => ({ ...p, status: v as BookingStatus }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
+                <SelectContent alignItemWithTrigger={false}>
                   <SelectItem value="draft">{t.status.booking.draft}</SelectItem>
                   <SelectItem value="confirmed">{t.status.booking.confirmed}</SelectItem>
                   <SelectItem value="active">{t.status.booking.active}</SelectItem>

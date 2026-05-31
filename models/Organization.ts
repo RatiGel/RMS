@@ -4,6 +4,9 @@ import crypto from "crypto";
 export interface IOrganization extends Document {
   name: string;
   inviteCode: string;
+  plan: "trial" | "starter" | "pro";
+  trialStartDate: Date;
+  planStartDate?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,6 +20,9 @@ const OrganizationSchema = new Schema<IOrganization>(
       unique: true,
       default: () => crypto.randomBytes(5).toString("hex"),
     },
+    plan: { type: String, enum: ["trial", "starter", "pro"], default: "trial" },
+    trialStartDate: { type: Date, default: Date.now },
+    planStartDate: { type: Date },
   },
   { timestamps: true }
 );

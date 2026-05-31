@@ -268,6 +268,128 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Pricing */}
+      <section className="bg-white dark:bg-slate-800 py-20 border-t border-slate-100 dark:border-slate-700">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-3">{l.pricing.title}</h2>
+            <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto">{l.pricing.subtitle}</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            {/* Free Trial */}
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-8 flex flex-col gap-6">
+              <div>
+                <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{l.pricing.trial}</div>
+                <div className="text-4xl font-bold text-slate-900 dark:text-white">Free</div>
+                <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">{l.pricing.trialDesc}</div>
+              </div>
+              <ul className="space-y-3 flex-1">
+                {[
+                  { feat: l.pricing.unlimitedAssets, included: true },
+                  { feat: l.pricing.teamAccess, included: false },
+                  { feat: l.pricing.invoicing, included: false },
+                ].map(({ feat, included }) => (
+                  <li key={feat} className={`flex items-center gap-2 text-sm ${included ? "text-slate-700 dark:text-slate-300" : "text-slate-400 dark:text-slate-500"}`}>
+                    <div className={`h-4 w-4 rounded-full flex items-center justify-center shrink-0 ${included ? "bg-indigo-100 dark:bg-indigo-500/20" : "bg-slate-200 dark:bg-slate-700"}`}>
+                      {included ? (
+                        <svg viewBox="0 0 10 10" className="h-2.5 w-2.5 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" strokeWidth="1.5">
+                          <polyline points="2,5 4.5,7.5 8,3" />
+                        </svg>
+                      ) : (
+                        <svg viewBox="0 0 10 10" className="h-2.5 w-2.5 text-slate-400" fill="none" stroke="currentColor" strokeWidth="1.5">
+                          <line x1="3" y1="3" x2="7" y2="7" /><line x1="7" y1="3" x2="3" y2="7" />
+                        </svg>
+                      )}
+                    </div>
+                    {feat}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/register"
+                className="block text-center bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 px-6 py-2.5 rounded-lg font-medium text-sm transition-colors"
+              >
+                {l.pricing.cta}
+              </Link>
+            </div>
+
+            {/* Starter */}
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-8 flex flex-col gap-6">
+              <div>
+                <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{l.pricing.starter}</div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl font-bold text-slate-900 dark:text-white">₾10</span>
+                  <span className="text-slate-500 dark:text-slate-400 text-sm">{l.pricing.perMonth}</span>
+                </div>
+                <div className="text-sm text-slate-500 dark:text-slate-400 mt-1">{l.pricing.starterDesc}</div>
+              </div>
+              <ul className="space-y-3 flex-1">
+                {[
+                  { feat: l.pricing.assetLimit.replace("{n}", "20"), included: true },
+                  { feat: l.pricing.teamAccess, included: false },
+                  { feat: l.pricing.invoicing, included: false },
+                ].map(({ feat, included }) => (
+                  <li key={feat} className={`flex items-center gap-2 text-sm ${included ? "text-slate-700 dark:text-slate-300" : "text-slate-400 dark:text-slate-500"}`}>
+                    <div className={`h-4 w-4 rounded-full flex items-center justify-center shrink-0 ${included ? "bg-indigo-100 dark:bg-indigo-500/20" : "bg-slate-200 dark:bg-slate-700"}`}>
+                      {included ? (
+                        <svg viewBox="0 0 10 10" className="h-2.5 w-2.5 text-indigo-500 dark:text-indigo-400" fill="none" stroke="currentColor" strokeWidth="1.5">
+                          <polyline points="2,5 4.5,7.5 8,3" />
+                        </svg>
+                      ) : (
+                        <svg viewBox="0 0 10 10" className="h-2.5 w-2.5 text-slate-400" fill="none" stroke="currentColor" strokeWidth="1.5">
+                          <line x1="3" y1="3" x2="7" y2="7" /><line x1="7" y1="3" x2="3" y2="7" />
+                        </svg>
+                      )}
+                    </div>
+                    {feat}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/register"
+                className="block text-center border border-indigo-500 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 px-6 py-2.5 rounded-lg font-medium text-sm transition-colors"
+              >
+                {l.pricing.ctaStarter}
+              </Link>
+            </div>
+
+            {/* Pro — highlighted */}
+            <div className="relative rounded-2xl border-2 border-indigo-500 bg-indigo-600 dark:bg-indigo-600 p-8 flex flex-col gap-6 shadow-xl shadow-indigo-500/20">
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-indigo-500 text-white text-xs font-semibold px-4 py-1 rounded-full whitespace-nowrap border border-indigo-400">
+                {l.pricing.mostPopular}
+              </div>
+              <div>
+                <div className="text-xs font-semibold text-indigo-200 uppercase tracking-wider mb-1">{l.pricing.pro}</div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl font-bold text-white">₾30</span>
+                  <span className="text-indigo-200 text-sm">{l.pricing.perMonth}</span>
+                </div>
+                <div className="text-sm text-indigo-200 mt-1">{l.pricing.proDesc}</div>
+              </div>
+              <ul className="space-y-3 flex-1">
+                {[l.pricing.unlimitedAssets, l.pricing.allFeatures, l.pricing.teamAccess, l.pricing.invoicing].map((feat) => (
+                  <li key={feat} className="flex items-center gap-2 text-sm text-white">
+                    <div className="h-4 w-4 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                      <svg viewBox="0 0 10 10" className="h-2.5 w-2.5 text-white" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <polyline points="2,5 4.5,7.5 8,3" />
+                      </svg>
+                    </div>
+                    {feat}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/register"
+                className="block text-center bg-white hover:bg-indigo-50 text-indigo-600 px-6 py-2.5 rounded-lg font-semibold text-sm transition-colors"
+              >
+                {l.pricing.ctaPro}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA banner */}
       <section className="bg-indigo-600 dark:bg-indigo-700 py-16">
         <div className="max-w-3xl mx-auto px-6 text-center space-y-6">

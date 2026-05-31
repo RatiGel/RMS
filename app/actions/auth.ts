@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { connectDB } from "@/lib/db";
 import { Organization } from "@/models/Organization";
 import { User } from "@/models/User";
+import { Category } from "@/models/Category";
 import { createSession, deleteSession } from "@/app/lib/session";
 import {
   SignupFormSchema,
@@ -49,6 +50,15 @@ export async function signup(
     passwordHash,
     role: "owner",
   });
+
+  try {
+    const raw = String(formData.get("categories") ?? "[]");
+    const names: unknown[] = JSON.parse(raw);
+    const valid = names.filter((n): n is string => typeof n === "string" && n.trim().length > 0);
+    if (valid.length > 0) {
+      await Category.insertMany(valid.map((n) => ({ orgId: org._id, name: n.trim(), description: "" })));
+    }
+  } catch { /* invalid JSON or DB error — categories are optional */ }
 
   await createSession({
     userId: String(user._id),

@@ -1,7 +1,9 @@
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
+import { TrialBanner } from "@/components/layout/trial-banner";
 import { getCurrentUser } from "@/app/lib/dal";
 import { SessionProvider } from "@/contexts/session-context";
+import { SubscriptionProvider } from "@/contexts/subscription-context";
 import { connectDB } from "@/lib/db";
 import { User } from "@/models/User";
 
@@ -23,15 +25,18 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <SessionProvider session={clientSession}>
-      <div className="flex h-screen overflow-hidden bg-background">
-        <Sidebar />
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <Header userName={session?.name} orgName={session?.orgName} avatarUrl={avatarUrl} />
-          <main className="flex-1 overflow-y-auto p-6">
-            {children}
-          </main>
+      <SubscriptionProvider>
+        <div className="flex h-screen overflow-hidden bg-background">
+          <Sidebar />
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <Header userName={session?.name} orgName={session?.orgName} avatarUrl={avatarUrl} />
+            <TrialBanner />
+            <main className="flex-1 overflow-y-auto p-6">
+              {children}
+            </main>
+          </div>
         </div>
-      </div>
+      </SubscriptionProvider>
     </SessionProvider>
   );
 }

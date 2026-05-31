@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
+import { Plus, X } from "lucide-react";
 import { signup } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,14 @@ import { Separator } from "@/components/ui/separator";
 
 export default function RegisterPage() {
   const [state, action, pending] = useActionState(signup, undefined);
+  const [categories, setCategories] = useState<string[]>([""]);
+
+  const addCategory = () => setCategories((prev) => [...prev, ""]);
+  const removeCategory = (i: number) => setCategories((prev) => prev.filter((_, idx) => idx !== i));
+  const updateCategory = (i: number, val: string) =>
+    setCategories((prev) => prev.map((c, idx) => (idx === i ? val : c)));
+
+  const validCategories = categories.filter((c) => c.trim().length > 0);
 
   return (
     <Card>
@@ -19,6 +28,7 @@ export default function RegisterPage() {
         <CardDescription>Set up your organization and get started with RMS</CardDescription>
       </CardHeader>
       <form action={action}>
+        <input type="hidden" name="categories" value={JSON.stringify(validCategories)} />
         <CardContent className="space-y-4">
           {state?.message && (
             <p className="text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">
@@ -60,6 +70,50 @@ export default function RegisterPage() {
                 ))}
               </ul>
             )}
+          </div>
+
+          <Separator />
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label>Asset Categories</Label>
+              <span className="text-xs text-muted-foreground">Optional</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Organize your inventory by category (e.g. Excavators, Trucks, Tools)
+            </p>
+            <div className="space-y-2">
+              {categories.map((cat, i) => (
+                <div key={i} className="flex gap-2">
+                  <Input
+                    value={cat}
+                    onChange={(e) => updateCategory(i, e.target.value)}
+                    placeholder="e.g. Excavators"
+                  />
+                  {categories.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeCategory(i)}
+                      className="shrink-0"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addCategory}
+                className="w-full"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add another category
+              </Button>
+            </div>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
