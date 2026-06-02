@@ -9,16 +9,16 @@ const secret = () => new TextEncoder().encode(process.env.SESSION_SECRET!);
 export default async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
-  // Admin route protection
-  if (path.startsWith("/admin") && path !== "/admin/login") {
+  // Admin route protection — unauthenticated users sent to /login
+  if (path.startsWith("/admin")) {
     const token = req.cookies.get("admin_session")?.value;
     if (!token) {
-      return NextResponse.redirect(new URL("/admin/login", req.url));
+      return NextResponse.redirect(new URL("/login", req.url));
     }
     try {
       await jwtVerify(token, secret());
     } catch {
-      return NextResponse.redirect(new URL("/admin/login", req.url));
+      return NextResponse.redirect(new URL("/login", req.url));
     }
     return NextResponse.next();
   }
