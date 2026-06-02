@@ -28,11 +28,14 @@ No test suite.
 Required in `.env.local`:
 
 ```
-MONGODB_URI=          # MongoDB Atlas connection string
-SESSION_SECRET=       # 32-byte hex string for jose JWT signing
-NEXT_PUBLIC_APP_URL=  # e.g. http://localhost:3000
-GOOGLE_CLIENT_ID=     # Google OAuth app client ID
-GOOGLE_CLIENT_SECRET= # Google OAuth app client secret
+MONGODB_URI=              # MongoDB Atlas connection string
+SESSION_SECRET=           # 32-byte hex string for jose JWT signing
+NEXT_PUBLIC_APP_URL=      # e.g. http://localhost:3000
+GOOGLE_CLIENT_ID=         # Google OAuth app client ID
+GOOGLE_CLIENT_SECRET=     # Google OAuth app client secret
+CLOUDINARY_CLOUD_NAME=    # Cloudinary cloud name
+CLOUDINARY_API_KEY=       # Cloudinary API key
+CLOUDINARY_API_SECRET=    # Cloudinary API secret
 ```
 
 ## Architecture
@@ -69,6 +72,7 @@ app/
     customers/page.tsx
     invoices/page.tsx
     profile/page.tsx
+    settings/page.tsx    # theme, language, currency, billing/plan
     team/page.tsx
 ```
 
@@ -98,6 +102,8 @@ All routes call `getSession()`. GET routes return `[]` / empty data when unauthe
 | `/api/dashboard` | GET (aggregated KPIs + chart data) |
 | `/api/me` | GET (current user from session) |
 | `/api/org` | PATCH (update org name; owner/admin only) |
+| `/api/upload` | POST (multipart form; max 2 MB; uploads to Cloudinary `rms/assets/` folder; returns `{ url }`) |
+| `/api/subscription` | GET (plan + trial status), POST (upgrade to starter/pro) |
 | `/api/invite` | GET (fetch invite code), POST (regenerate; owner/admin only) |
 | `/api/team`, `/api/team/[id]` | GET (org members), PUT/DELETE (update/remove member) |
 
@@ -109,14 +115,18 @@ All routes call `getSession()`. GET routes return `[]` / empty data when unauthe
 
 ### Contexts
 
-Two React Contexts wrap the root layout (`LanguageProvider > CurrencyProvider > children`):
+Root layout provider order: `ThemeProvider > QueryClientProvider > LanguageProvider > CurrencyProvider` (see `app/providers.tsx` + `app/layout.tsx`).
+
+Dashboard layout adds: `SessionProvider > SubscriptionProvider` (see `app/dashboard/layout.tsx`).
 
 - `useLanguage()` — locale + translations. Context in `contexts/language-context.tsx`.
 - `useCurrency()` — active currency (`USD`/`GEL`), `formatCurrency(n)`, `currencySymbol`. Context in `contexts/currency-context.tsx`. **Use this for all money display**, not `utils/format.ts:formatCurrency`.
+- `useSession()` — returns `ClientSession | null` (`userId`, `orgId`, `role`, `name`, `orgName`, `avatarUrl`). `useIsStaff()` checks `role === "staff"`. Context in `contexts/session-context.tsx`; populated from server `getCurrentUser()` in dashboard layout.
+- `useSubscription()` — subscription state from `contexts/subscription-context.tsx`. Fields: `plan` (`"trial" | "starter" | "pro"`), `trialDaysLeft`, `trialExpired`, `assetLimit` (null=unlimited, 20 for starter), `canAccessTeam`, `canAccessInvoices`, `upgrade(plan)`. Pro plan unlocks team + invoices features. Use to gate UI elements.
 
 ### i18n
 
-Custom React Context, no next-intl. Two locales: `en`, `ka` (Georgian).
+Custom React Context, no next-intl. Three locales: `en`, `ka` (Georgian), `ru` (Russian).
 
 - Translations: `lib/i18n/translations.ts` — add keys to **both** `en` and `ka` blocks.
 - Hook: `const { t, locale, setLocale } = useLanguage()`.
