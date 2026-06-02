@@ -10,6 +10,7 @@ export interface IUser extends Document {
   googleId?: string;
   avatarUrl?: string;
   role: UserRole;
+  blacklisted: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -23,6 +24,7 @@ const UserSchema = new Schema<IUser>(
     googleId: { type: String },
     avatarUrl: { type: String },
     role: { type: String, enum: ["owner", "admin", "staff"], default: "owner" },
+    blacklisted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

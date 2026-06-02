@@ -98,6 +98,10 @@ export async function login(
     return { message: "Invalid email or password." };
   }
 
+  if (user.blacklisted) {
+    return { message: "Your account has been suspended. Contact support." };
+  }
+
   const org = await Organization.findById(user.orgId);
 
   await createSession({

@@ -33,6 +33,7 @@ SESSION_SECRET=           # 32-byte hex string for jose JWT signing
 NEXT_PUBLIC_APP_URL=      # e.g. http://localhost:3000
 GOOGLE_CLIENT_ID=         # Google OAuth app client ID
 GOOGLE_CLIENT_SECRET=     # Google OAuth app client secret
+ADMIN_PASSWORD=           # Admin panel password (site owner only — /admin route)
 CLOUDINARY_CLOUD_NAME=    # Cloudinary cloud name
 CLOUDINARY_API_KEY=       # Cloudinary API key
 CLOUDINARY_API_SECRET=    # Cloudinary API secret
@@ -103,6 +104,9 @@ All routes call `getSession()`. GET routes return `[]` / empty data when unauthe
 | `/api/me` | GET (current user from session) |
 | `/api/org` | PATCH (update org name; owner/admin only) |
 | `/api/upload` | POST (multipart form; max 2 MB; uploads to Cloudinary `rms/assets/` folder; returns `{ url }`) |
+| `/api/admin/orgs` | GET (all orgs + members + counts; admin cookie required) |
+| `/api/admin/orgs/[id]` | DELETE (cascade-deletes org + all its data; admin only) |
+| `/api/admin/users/[id]` | DELETE (remove user); PATCH `{ blacklisted: bool }` (toggle blacklist) |
 | `/api/subscription` | GET (plan + trial status), POST (upgrade to starter/pro) |
 | `/api/invite` | GET (fetch invite code), POST (regenerate; owner/admin only) |
 | `/api/team`, `/api/team/[id]` | GET (org members), PUT/DELETE (update/remove member) |
@@ -153,6 +157,16 @@ All dashboard pages are `"use client"` and use `@tanstack/react-query` v5:
 - `lib/utils.ts` — `cn(...)` Tailwind class merging via `clsx` + `tailwind-merge`.
 - `utils/format.ts` — `formatDate(str)`, `daysBetween(start, end)`. `formatCurrency` here is locale-unaware — avoid in UI.
 - `sonner` toast: `import { toast } from "sonner"`.
+
+### Admin panel (`app/admin/`)
+
+Separate top-level route, dark theme, no sidebar. Completely independent from the user dashboard.
+
+- **Auth:** `ADMIN_PASSWORD` env var. Login at `/admin/login` sets `admin_session` httpOnly cookie (12h JWT signed with `SESSION_SECRET`). `proxy.ts` middleware validates this cookie for all `/admin/*` paths.
+- **Admin session:** `app/lib/admin-session.ts` — `createAdminSession`, `getAdminSession`, `deleteAdminSession`.
+- **Server actions:** `app/actions/admin-auth.ts` — `adminLogin`, `adminLogout`.
+- **API routes:** all under `/api/admin/` — verify `admin_session` cookie independently (no shared helper, inline `jwtVerify`).
+- **Blacklist:** `User.blacklisted` boolean field. Login action (`app/actions/auth.ts`) blocks blacklisted users with an error message.
 
 ### Mock data layer (`lib/mock/`)
 
