@@ -1,34 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
-import { jwtVerify } from "jose";
 import { decrypt } from "@/app/lib/session";
-import { cookies } from "next/headers";
 
 const publicRoutes = ["/login", "/register"];
-const secret = () => new TextEncoder().encode(process.env.SESSION_SECRET!);
+
+function nextWithHeader(req: NextRequest): NextResponse {
+  const reqHeaders = new Headers(req.headers);
+  reqHeaders.set("x-sa-path", req.nextUrl.pathname);
+  return NextResponse.next({ request: { headers: reqHeaders } });
+}
 
 export default async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
-  // Admin route protection — unauthenticated users sent to /login
-  if (path.startsWith("/admin")) {
-    const token = req.cookies.get("admin_session")?.value;
-    if (!token) {
-      return NextResponse.redirect(new URL("/login", req.url));
+  // Super admin route protection
+  if (path.startsWith("/super-admin")) {
+    if (path === "/super-admin/login") {
+      const session = await decrypt(req.cookies.get("rms_session")?.value);
+      if (session?.role === "super_admin") {
+        return NextResponse.redirect(new URL("/super-admin", req.url));
+      }
+      return nextWithHeader(req);
     }
-    try {
-      await jwtVerify(token, secret());
-    } catch {
-      return NextResponse.redirect(new URL("/login", req.url));
+    const session = await decrypt(req.cookies.get("rms_session")?.value);
+    if (!session || session.role !== "super_admin") {
+      return NextResponse.redirect(new URL("/super-admin/login", req.url));
     }
-    return NextResponse.next();
+    return nextWithHeader(req);
   }
 
   // Redirect authenticated users away from login/register
   const isPublic = publicRoutes.includes(path);
   if (isPublic) {
-    const cookieStore = await cookies();
-    const sessionToken = cookieStore.get("rms_session")?.value;
-    const session = await decrypt(sessionToken);
+    const session = await decrypt(req.cookies.get("rms_session")?.value);
     if (session?.userId) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }

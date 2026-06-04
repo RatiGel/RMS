@@ -7,7 +7,6 @@ import { Organization } from "@/models/Organization";
 import { User } from "@/models/User";
 import { Category } from "@/models/Category";
 import { createSession, deleteSession } from "@/app/lib/session";
-import { createAdminSession } from "@/app/lib/admin-session";
 import {
   SignupFormSchema,
   LoginFormSchema,
@@ -87,15 +86,6 @@ export async function login(
 
   const { email, password } = validated.data;
 
-  // Admin shortcut — no DB lookup
-  if (
-    email === process.env.ADMIN_EMAIL &&
-    password === process.env.ADMIN_PASSWORD
-  ) {
-    await createAdminSession();
-    redirect("/admin");
-  }
-
   await connectDB();
 
   const user = await User.findOne({ email });
@@ -113,6 +103,13 @@ export async function login(
   }
 
   const org = await Organization.findById(user.orgId);
+
+  if (org?.status === "suspended") {
+    return { message: "Your organization has been suspended. Contact support." };
+  }
+
+  await Organization.findByIdAndUpdate(user.orgId, { lastLoginAt: new Date() });
+  await User.findByIdAndUpdate(user._id, { lastLoginAt: new Date() });
 
   await createSession({
     userId: String(user._id),

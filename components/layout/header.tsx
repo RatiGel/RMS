@@ -1,8 +1,9 @@
 "use client";
 
 
-import { Search, UserCircle, Settings, UsersRound, Sun, Moon, Lock } from "lucide-react";
+import { Search, UserCircle, Settings, UsersRound, Sun, Moon, Lock, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -22,6 +23,7 @@ import { Locale } from "@/lib/i18n/translations";
 import { logout } from "@/app/actions/auth";
 import { useTheme } from "next-themes";
 import { useSubscription } from "@/contexts/subscription-context";
+import { useSession } from "@/contexts/session-context";
 import { UpgradeDialog } from "@/components/subscription/upgrade-dialog";
 import { useState } from "react";
 
@@ -51,6 +53,7 @@ export function Header({ userName = "User", orgName = "My Organization", avatarU
   const { currency, setCurrency } = useCurrency();
   const { setTheme, resolvedTheme } = useTheme();
   const { plan, canAccessTeam } = useSubscription();
+  const session = useSession();
   const router = useRouter();
   const [upgradeOpen, setUpgradeOpen] = useState(false);
 
@@ -108,6 +111,16 @@ export function Header({ userName = "User", orgName = "My Organization", avatarU
         </button>
 
         <NotificationBell />
+
+        {session?.role === "super_admin" && (
+          <Link
+            href="/super-admin"
+            className="flex items-center justify-center rounded-md border p-1.5 text-primary hover:bg-primary/10 transition-colors"
+            title="Super Admin Panel"
+          >
+            <ShieldCheck className="h-4 w-4" />
+          </Link>
+        )}
 
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-2 pl-2 rounded-md px-2 py-1.5 hover:bg-accent transition-colors outline-none">

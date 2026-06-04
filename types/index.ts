@@ -2,7 +2,7 @@ export type AssetStatus = "available" | "rented" | "maintenance" | "retired";
 export type BookingStatus = "draft" | "confirmed" | "active" | "returned" | "cancelled";
 export type InvoiceStatus = "unpaid" | "partial" | "paid" | "overdue";
 export type PaymentMethod = "cash" | "bank_transfer" | "card" | "other";
-export type UserRole = "owner" | "admin" | "staff";
+export type UserRole = "owner" | "admin" | "staff" | "super_admin";
 
 export interface Category {
   id: string;
