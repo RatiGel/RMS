@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { formatDistanceToNow, format } from "date-fns";
-import { Search, Plus, Eye, LogIn, Ban, RefreshCw, Trash2, Package, CalendarDays, DollarSign, Users } from "lucide-react";
+import { Search, Plus, Eye, LogIn, Ban, RefreshCw, Trash2, Package, CalendarDays, DollarSign, Users, Building2 } from "lucide-react";
 import { PlanBadge, StatusBadge } from "@/components/super-admin/status-badges";
 
 type Tenant = {

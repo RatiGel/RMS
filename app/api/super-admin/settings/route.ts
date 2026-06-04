@@ -49,7 +49,7 @@ export async function PATCH(req: NextRequest) {
   ];
   for (const key of updatable) {
     if (body[key] !== undefined) {
-      (settings as Record<string, unknown>)[key] = body[key];
+      (settings as unknown as Record<string, unknown>)[key] = body[key];
     }
   }
   await settings.save();

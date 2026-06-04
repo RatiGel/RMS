@@ -55,8 +55,8 @@ export async function GET() {
     ]),
   ]);
 
-  const orgIds = perTenant.map((p: { _id: unknown }) => p._id);
-  const orgs = await Organization.find({ _id: { $in: orgIds } }).select("name plan").lean();
+  const orgIds = perTenant.map((p: { _id: unknown }) => p._id as string);
+  const orgs = await Organization.find({ _id: { $in: orgIds as string[] } }).select("name plan").lean();
   const orgMap = Object.fromEntries(orgs.map((o) => [String(o._id), o]));
 
   const bookingCounts = await Booking.aggregate([
