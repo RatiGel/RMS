@@ -1,6 +1,5 @@
 "use client";
 
-
 import { Search, UserCircle, Settings, UsersRound, Sun, Moon, Lock, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -58,22 +57,26 @@ export function Header({ userName = "User", orgName = "My Organization", avatarU
   const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   return (
-    <header className="flex h-16 items-center gap-4 border-b bg-card/95 backdrop-blur-sm px-6 shadow-sm">
-      <div className="flex-1 max-w-sm">
+    <header className="flex h-14 items-center gap-3 border-b border-border bg-card/95 backdrop-blur-sm px-4 shadow-sm">
+      {/* Search */}
+      <div className="flex-1 max-w-xs">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder={t.header.searchPlaceholder} className="pl-9 bg-background" />
+          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder={t.header.searchPlaceholder}
+            className="pl-8 h-8 text-sm bg-background/60 border-border/60 focus-visible:bg-background"
+          />
         </div>
       </div>
 
-      <div className="flex items-center gap-2 ml-auto">
+      <div className="flex items-center gap-1.5 ml-auto">
         {/* Currency switcher */}
-        <div className="flex items-center rounded-md border overflow-hidden text-xs font-medium">
+        <div className="flex items-center rounded-lg border border-border overflow-hidden text-xs font-semibold">
           {(Object.keys(currencyLabels) as Currency[]).map((c) => (
             <button
               key={c}
               onClick={() => setCurrency(c)}
-              className={`px-2.5 py-1.5 transition-colors ${
+              className={`px-2.5 py-1 transition-colors cursor-pointer ${
                 currency === c
                   ? "bg-primary text-primary-foreground"
                   : "hover:bg-accent text-muted-foreground"
@@ -85,12 +88,12 @@ export function Header({ userName = "User", orgName = "My Organization", avatarU
         </div>
 
         {/* Language switcher */}
-        <div className="flex items-center rounded-md border overflow-hidden text-xs font-medium">
+        <div className="flex items-center rounded-lg border border-border overflow-hidden text-xs font-semibold">
           {(Object.keys(localeLabels) as Locale[]).map((loc) => (
             <button
               key={loc}
               onClick={() => setLocale(loc)}
-              className={`px-2.5 py-1.5 transition-colors ${
+              className={`px-2.5 py-1 transition-colors cursor-pointer ${
                 locale === loc
                   ? "bg-primary text-primary-foreground"
                   : "hover:bg-accent text-muted-foreground"
@@ -101,13 +104,14 @@ export function Header({ userName = "User", orgName = "My Organization", avatarU
           ))}
         </div>
 
+        {/* Theme toggle */}
         <button
           onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-          className="flex items-center justify-center rounded-md border p-1.5 hover:bg-accent transition-colors"
+          className="flex items-center justify-center rounded-lg border border-border p-1.5 hover:bg-accent transition-colors cursor-pointer"
           aria-label="Toggle theme"
         >
-          <Sun className="h-4 w-4 hidden dark:block" />
-          <Moon className="h-4 w-4 dark:hidden" />
+          <Sun className="h-3.5 w-3.5 hidden dark:block" />
+          <Moon className="h-3.5 w-3.5 dark:hidden" />
         </button>
 
         <NotificationBell />
@@ -115,29 +119,30 @@ export function Header({ userName = "User", orgName = "My Organization", avatarU
         {session?.role === "super_admin" && (
           <Link
             href="/super-admin"
-            className="flex items-center justify-center rounded-md border p-1.5 text-primary hover:bg-primary/10 transition-colors"
+            className="flex items-center justify-center rounded-lg border border-border p-1.5 text-primary hover:bg-primary/10 transition-colors"
             title="Super Admin Panel"
           >
-            <ShieldCheck className="h-4 w-4" />
+            <ShieldCheck className="h-3.5 w-3.5" />
           </Link>
         )}
 
+        {/* User menu */}
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-2 pl-2 rounded-md px-2 py-1.5 hover:bg-accent transition-colors outline-none">
-            <Avatar className="h-7 w-7">
+          <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-accent transition-colors outline-none ml-1">
+            <Avatar className="h-6 w-6">
               <AvatarImage src={avatarUrl} alt={userName} />
-              <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+              <AvatarFallback className="text-[10px] bg-primary text-primary-foreground font-semibold">
                 {initials(userName)}
               </AvatarFallback>
             </Avatar>
             <span className="text-left hidden sm:flex sm:flex-col">
-              <span className="text-sm font-medium leading-none">{userName}</span>
-              <span className="text-xs text-muted-foreground mt-0.5">{orgName}</span>
+              <span className="text-xs font-semibold leading-none">{userName}</span>
+              <span className="text-[10px] text-muted-foreground mt-0.5 leading-none truncate max-w-[100px]">{orgName}</span>
             </span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuGroup>
-              <DropdownMenuLabel>{t.header.myAccount}</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">{t.header.myAccount}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => router.push("/dashboard/profile")}>
                 <UserCircle className="h-4 w-4" />
@@ -171,7 +176,6 @@ export function Header({ userName = "User", orgName = "My Organization", avatarU
             </form>
           </DropdownMenuContent>
         </DropdownMenu>
-
       </div>
 
       <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} currentPlan={plan} />

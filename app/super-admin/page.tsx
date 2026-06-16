@@ -44,11 +44,11 @@ export default function SuperAdminDashboard() {
 
       {/* KPIs */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard title="Total Tenants" value={String(data.totalTenants)} icon={Building2} iconColor="bg-purple-500" change="All organizations" changeType="neutral" />
-        <KpiCard title="Active Tenants" value={String(data.activeTenants)} icon={Users2} iconColor="bg-blue-500"
+        <KpiCard title="Total Tenants" value={String(data.totalTenants)} icon={Building2} color="purple" change="All organizations" changeType="neutral" />
+        <KpiCard title="Active Tenants" value={String(data.activeTenants)} icon={Users2} color="blue"
           change={`${Math.round((data.activeTenants / Math.max(data.totalTenants, 1)) * 100)}% of total`} changeType="positive" />
-        <KpiCard title="Bookings Today" value={String(data.totalBookingsToday)} icon={CalendarDays} iconColor="bg-emerald-500" change="Across all orgs" changeType="neutral" />
-        <KpiCard title="Platform MRR" value={`$${data.platformMRR.toLocaleString()}`} icon={DollarSign} iconColor="bg-green-500" change="This month" changeType="positive" />
+        <KpiCard title="Bookings Today" value={String(data.totalBookingsToday)} icon={CalendarDays} color="indigo" change="Across all orgs" changeType="neutral" />
+        <KpiCard title="Platform MRR" value={`$${data.platformMRR.toLocaleString()}`} icon={DollarSign} color="green" change="This month" changeType="positive" />
       </div>
 
       {/* Charts row */}

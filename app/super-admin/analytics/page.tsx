@@ -37,11 +37,11 @@ export default function AnalyticsPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-4 gap-4">
-        <KpiCard title="Total Revenue (12mo)" value={`$${totalRevenue.toLocaleString()}`} icon={DollarSign} iconColor="bg-emerald-500"
+        <KpiCard title="Total Revenue (12mo)" value={`$${totalRevenue.toLocaleString()}`} icon={DollarSign} color="green"
           change={mrrGrowth !== null ? `${mrrGrowth > 0 ? "+" : ""}${mrrGrowth}% vs last month` : "No comparison"} changeType={mrrGrowth !== null && mrrGrowth >= 0 ? "positive" : "negative"} />
-        <KpiCard title="Current MRR" value={`$${(latestMonth?.revenue ?? 0).toLocaleString()}`} icon={TrendingUp} iconColor="bg-blue-500" change="This month" changeType="neutral" />
-        <KpiCard title="Total Bookings (12mo)" value={totalBookings.toLocaleString()} icon={CalendarDays} iconColor="bg-purple-500" change="All tenants" changeType="neutral" />
-        <KpiCard title="Revenue Tenants" value={String(data.perTenant?.length ?? 0)} icon={BarChart3} iconColor="bg-amber-500" change="With paid invoices" changeType="neutral" />
+        <KpiCard title="Current MRR" value={`$${(latestMonth?.revenue ?? 0).toLocaleString()}`} icon={TrendingUp} color="blue" change="This month" changeType="neutral" />
+        <KpiCard title="Total Bookings (12mo)" value={totalBookings.toLocaleString()} icon={CalendarDays} color="indigo" change="All tenants" changeType="neutral" />
+        <KpiCard title="Revenue Tenants" value={String(data.perTenant?.length ?? 0)} icon={BarChart3} color="orange" change="With paid invoices" changeType="neutral" />
       </div>
 
       <div className="grid grid-cols-2 gap-4">

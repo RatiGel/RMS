@@ -34,9 +34,9 @@ export function RevenueChart({ data }: RevenueChartProps) {
             <Line
               type="monotone"
               dataKey="revenue"
-              stroke="hsl(var(--primary))"
+              stroke="var(--color-primary)"
               strokeWidth={2}
-              dot={{ r: 4, fill: "hsl(var(--primary))" }}
+              dot={{ r: 4, fill: "var(--color-primary)" }}
               activeDot={{ r: 6 }}
             />
           </LineChart>

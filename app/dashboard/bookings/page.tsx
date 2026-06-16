@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, List, CalendarRange } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookingStatusBadge } from "@/components/shared/status-badge";
 import { BookingFormDialog } from "@/components/bookings/booking-form-dialog";
+import { BookingCalendar } from "@/components/bookings/booking-calendar";
+import { cn } from "@/lib/utils";
 import { Booking, BookingStatus, Asset, Customer } from "@/types";
 import { formatDate } from "@/utils/format";
 import { useCurrency } from "@/contexts/currency-context";
@@ -25,6 +27,7 @@ export default function BookingsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<BookingStatus | "all">("all");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [view, setView] = useState<"list" | "calendar">("list");
 
   const { data: bookings = [], isLoading } = useQuery<Booking[]>({
     queryKey: ["bookings"],
@@ -74,6 +77,38 @@ export default function BookingsPage() {
         </Button>
       </div>
 
+      {/* View toggle */}
+      <div className="flex items-center gap-1 rounded-lg border p-0.5 w-fit">
+        <button
+          type="button"
+          onClick={() => setView("list")}
+          className={cn(
+            "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+            view === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent"
+          )}
+        >
+          <List className="h-4 w-4" /> {t.bookings.calendar.list}
+        </button>
+        <button
+          type="button"
+          onClick={() => setView("calendar")}
+          className={cn(
+            "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+            view === "calendar" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent"
+          )}
+        >
+          <CalendarRange className="h-4 w-4" /> {t.bookings.calendar.calendar}
+        </button>
+      </div>
+
+      {view === "calendar" ? (
+        isLoading ? (
+          <Skeleton className="h-96 rounded-xl" />
+        ) : (
+          <BookingCalendar bookings={bookings} />
+        )
+      ) : (
+      <>
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-48">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -134,6 +169,8 @@ export default function BookingsPage() {
           </CardContent>
         </Card>
       )}
+      </>
+      )}
 
       <BookingFormDialog
         open={dialogOpen}
@@ -148,3 +185,4 @@ export default function BookingsPage() {
     </div>
   );
 }
+

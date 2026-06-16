@@ -9,11 +9,13 @@ import { RecentBookings } from "@/components/dashboard/recent-bookings";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrency } from "@/contexts/currency-context";
 import { useLanguage } from "@/contexts/language-context";
+import { useSession } from "@/contexts/session-context";
 import type { DashboardStats } from "@/types";
 
 export default function DashboardPage() {
   const { t } = useLanguage();
   const { formatCurrency } = useCurrency();
+  const session = useSession();
 
   const { data: stats, isLoading } = useQuery<DashboardStats>({
     queryKey: ["dashboard"],
@@ -24,24 +26,40 @@ export default function DashboardPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t.dashboard.title}</h1>
+          <Skeleton className="h-7 w-48 rounded-lg mb-2" />
+          <Skeleton className="h-4 w-64 rounded-lg" />
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-32 rounded-xl" />
+            <Skeleton key={i} className="h-28 rounded-xl" />
           ))}
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          <Skeleton className="col-span-2 h-72 rounded-xl" />
+          <Skeleton className="h-72 rounded-xl" />
         </div>
         <Skeleton className="h-64 rounded-xl" />
       </div>
     );
   }
 
+  const firstName = session?.name?.split(" ")[0] ?? "there";
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">{t.dashboard.title}</h1>
+      {/* Greeting */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Welcome back, {firstName}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {t.dashboard.title} — {session?.orgName ?? ""}
+          </p>
+        </div>
       </div>
 
+      {/* KPI cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard
           title={t.dashboard.totalAssets}
@@ -49,7 +67,7 @@ export default function DashboardPage() {
           change={t.dashboard.assetsAddedThisMonth.replace("{n}", "—")}
           changeType="positive"
           icon={Package}
-          iconColor="bg-indigo-500"
+          color="indigo"
         />
         <KpiCard
           title={t.dashboard.activeBookings}
@@ -57,7 +75,7 @@ export default function DashboardPage() {
           change={t.dashboard.bookingsEndingThisWeek.replace("{n}", "—")}
           changeType="neutral"
           icon={CalendarDays}
-          iconColor="bg-blue-500"
+          color="blue"
         />
         <KpiCard
           title={t.dashboard.monthlyRevenue}
@@ -65,7 +83,7 @@ export default function DashboardPage() {
           change={t.dashboard.revenueVsLastMonth.replace("{n}", "—")}
           changeType="positive"
           icon={DollarSign}
-          iconColor="bg-green-500"
+          color="green"
         />
         <KpiCard
           title={t.dashboard.overdueInvoices}
@@ -73,17 +91,23 @@ export default function DashboardPage() {
           change={t.dashboard.requiresAction.replace("{n}", stats.overdueInvoices.toString())}
           changeType={stats.overdueInvoices > 0 ? "negative" : "positive"}
           icon={AlertTriangle}
-          iconColor="bg-red-500"
+          color="red"
         />
       </div>
 
+      {/* Charts — bento grid */}
       <div className="grid grid-cols-3 gap-4">
-        <RevenueChart data={stats.revenueByMonth} />
+        <div className="col-span-2">
+          <RevenueChart data={stats.revenueByMonth} />
+        </div>
         <CategoryChart data={stats.assetsByCategory} />
       </div>
 
+      {/* Recent bookings */}
       <div className="grid grid-cols-3 gap-4">
-        <RecentBookings bookings={stats.recentBookings} />
+        <div className="col-span-3">
+          <RecentBookings bookings={stats.recentBookings} />
+        </div>
       </div>
     </div>
   );

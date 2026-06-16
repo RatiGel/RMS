@@ -69,8 +69,8 @@ export function AssetFormDialog({ open, onOpenChange, asset, categories, onSave 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("File exceeds 2 MB limit");
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File exceeds 5 MB limit");
       e.target.value = "";
       return;
     }
@@ -168,7 +168,7 @@ export function AssetFormDialog({ open, onOpenChange, asset, categories, onSave 
                   ) : (
                     <>
                       <ImagePlus className="h-5 w-5" />
-                      <span className="text-xs">Upload image (max 2 MB)</span>
+                      <span className="text-xs">Upload image (max 5 MB)</span>
                     </>
                   )}
                 </button>

@@ -8,7 +8,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
+const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
   if (!file) return NextResponse.json({ error: "No file provided" }, { status: 400 });
   if (file.size > MAX_SIZE) {
-    return NextResponse.json({ error: "File exceeds 2 MB limit" }, { status: 400 });
+    return NextResponse.json({ error: "File exceeds 5 MB limit" }, { status: 400 });
   }
 
   const bytes = await file.arrayBuffer();
