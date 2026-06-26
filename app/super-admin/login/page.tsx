@@ -104,10 +104,7 @@ function LoginContent() {
     <div className="min-h-screen flex flex-col bg-background">
       {/* Top bar */}
       <div className="border-b px-6 py-3 flex items-center gap-2">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-          <ShieldCheck className="h-4 w-4" />
-        </div>
-        <span className="text-sm font-semibold">RMS</span>
+        <span className="text-base font-extrabold tracking-tight brand-text">Qiravo</span>
         <span className="text-muted-foreground text-sm">/ Super Admin</span>
       </div>
 

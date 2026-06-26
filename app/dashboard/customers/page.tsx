@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Users } from "lucide-react";
+import { PageHeader } from "@/components/layout/page-header";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -53,18 +54,17 @@ export default function CustomersPage() {
   const initials = (name: string) => name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t.customers.title}</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            {t.customers.subtitle.replace("{total}", customers.length.toString())}
-          </p>
-        </div>
-        <Button onClick={() => { setEditingCustomer(null); setDialogOpen(true); }}>
-          <Plus className="h-4 w-4 mr-2" /> {t.customers.addCustomer}
-        </Button>
-      </div>
+    <div className="space-y-6 rms-stagger">
+      <PageHeader
+        icon={Users}
+        title={t.customers.title}
+        subtitle={t.customers.subtitle.replace("{total}", customers.length.toString())}
+        action={
+          <Button onClick={() => { setEditingCustomer(null); setDialogOpen(true); }}>
+            <Plus className="h-4 w-4 mr-2" /> {t.customers.addCustomer}
+          </Button>
+        }
+      />
 
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

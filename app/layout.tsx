@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RMS — Rental Management System",
+  title: "Qiravo — Rental Management System",
   description: "Manage your rental assets, bookings, customers, and invoices",
 };
 

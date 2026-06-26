@@ -9,7 +9,6 @@ import {
   Users,
   FileText,
   ChevronLeft,
-  Building2,
   Lock,
   Zap,
 } from "lucide-react";
@@ -38,25 +37,26 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "relative flex h-screen flex-col border-r border-border bg-card transition-all duration-300",
-        collapsed ? "w-[60px]" : "w-[220px]"
+        "relative flex h-screen flex-col border-r border-border bg-card/80 backdrop-blur-xl transition-all duration-300",
+        collapsed ? "w-[60px]" : "w-[228px]"
       )}
     >
       {/* Logo */}
-      <div className={cn("flex h-16 items-center border-b border-border", collapsed ? "justify-center px-3" : "gap-2.5 px-4")}>
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground flex-shrink-0 shadow-sm shadow-primary/25">
-          <Building2 className="h-4 w-4" />
-        </div>
-        {!collapsed && (
-          <div className="flex flex-col min-w-0">
-            <span className="font-bold text-sm tracking-tight leading-tight">RMS</span>
-            <span className="text-[9px] text-muted-foreground leading-tight font-semibold tracking-widest uppercase">Rental System</span>
-          </div>
+      <div className={cn("flex h-16 items-center border-b border-border", collapsed ? "justify-center px-3" : "px-4")}>
+        {collapsed ? (
+          <span className="font-extrabold text-xl tracking-tight brand-text">Q</span>
+        ) : (
+          <span className="font-extrabold text-xl tracking-tight brand-text">Qiravo</span>
         )}
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
+      <nav className="flex-1 overflow-y-auto py-4 px-2.5 space-y-1">
+        {!collapsed && (
+          <p className="px-2.5 pb-1.5 pt-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
+            {t.nav.dashboard}
+          </p>
+        )}
         {navItems.map(({ href, label, icon: Icon, locked }) => {
           const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
           if (locked) {
@@ -66,28 +66,32 @@ export function Sidebar() {
                 type="button"
                 onClick={() => setUpgradeOpen(true)}
                 className={cn(
-                  "w-full flex items-center rounded-lg px-2.5 py-2 text-sm font-medium transition-all duration-150 cursor-pointer text-muted-foreground/50 hover:bg-accent/40 hover:text-muted-foreground",
+                  "group w-full flex items-center rounded-xl px-2.5 py-2.5 text-sm font-medium transition-all duration-150 cursor-pointer text-muted-foreground/50 hover:bg-accent/40 hover:text-muted-foreground",
                   collapsed ? "justify-center gap-0" : "gap-3"
                 )}
+                title={collapsed ? label : undefined}
               >
-                <Icon className="h-4 w-4 flex-shrink-0 opacity-50" />
+                <Icon className="h-[18px] w-[18px] flex-shrink-0 opacity-50" />
                 {!collapsed && <span className="flex-1 text-left">{label}</span>}
                 {!collapsed && <Lock className="h-3 w-3 opacity-40" />}
               </button>
             );
           }
           return (
-            <Link key={href} href={href}>
+            <Link key={href} href={href} title={collapsed ? label : undefined}>
               <span
                 className={cn(
-                  "flex items-center rounded-lg px-2.5 py-2 text-sm font-medium transition-all duration-150 cursor-pointer",
+                  "group relative flex items-center rounded-xl px-2.5 py-2.5 text-sm font-medium transition-all duration-200 cursor-pointer",
                   collapsed ? "justify-center gap-0" : "gap-3",
                   active
-                    ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
-                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                    ? "brand-gradient text-white shadow-lg shadow-primary/25"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground hover:translate-x-0.5"
                 )}
               >
-                <Icon className="h-4 w-4 flex-shrink-0" />
+                {active && !collapsed && (
+                  <span className="absolute -left-2.5 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-white/80" />
+                )}
+                <Icon className={cn("h-[18px] w-[18px] flex-shrink-0 transition-transform duration-200", !active && "group-hover:scale-110")} />
                 {!collapsed && <span>{label}</span>}
               </span>
             </Link>
@@ -98,19 +102,23 @@ export function Sidebar() {
       <UpgradeDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} currentPlan={plan} />
 
       {/* Plan badge */}
-      <div className={cn("border-t border-border py-3 px-2", collapsed && "flex justify-center")}>
+      <div className={cn("border-t border-border py-3 px-2.5", collapsed && "flex justify-center")}>
         {!collapsed ? (
           <button
             type="button"
             onClick={() => plan === "trial" && setUpgradeOpen(true)}
             className={cn(
-              "w-full flex items-center gap-2 px-2.5 py-2 rounded-lg transition-colors text-left",
-              plan === "trial" ? "cursor-pointer hover:bg-accent" : "cursor-default"
+              "w-full flex items-center gap-2 px-2.5 py-2 rounded-xl transition-all text-left",
+              plan === "pro"
+                ? "brand-gradient text-white shadow-md shadow-primary/20 cursor-default"
+                : plan === "trial"
+                ? "cursor-pointer hover:bg-accent border border-amber-500/30 bg-amber-500/5"
+                : "cursor-default hover:bg-accent"
             )}
           >
             {plan === "pro" ? (
-              <div className="h-5 w-5 rounded-md bg-primary/15 flex items-center justify-center flex-shrink-0">
-                <Zap className="h-3 w-3 text-primary" />
+              <div className="h-5 w-5 rounded-md bg-white/20 flex items-center justify-center flex-shrink-0">
+                <Zap className="h-3 w-3 text-white" />
               </div>
             ) : (
               <div className={cn(
@@ -118,7 +126,7 @@ export function Sidebar() {
                 plan === "starter" ? "bg-blue-500" : "bg-amber-500"
               )} />
             )}
-            <span className="text-xs font-semibold capitalize text-muted-foreground">{plan}</span>
+            <span className={cn("text-xs font-semibold capitalize", plan === "pro" ? "text-white" : "text-muted-foreground")}>{plan}</span>
             {plan === "trial" && trialDaysLeft !== null && (
               <span className="ml-auto text-[10px] text-amber-600 dark:text-amber-400 font-bold tabular-nums">
                 {trialDaysLeft}d

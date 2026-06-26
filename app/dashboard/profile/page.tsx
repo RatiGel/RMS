@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Trash2, Pencil, Plus } from "lucide-react";
+import { Trash2, Pencil, Plus, UserCircle } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "@/contexts/session-context";
 import { useLanguage } from "@/contexts/language-context";
@@ -185,15 +185,20 @@ export default function ProfilePage() {
   });
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">{p.title}</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          {p.yourRole}:{" "}
-          <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${ROLE_COLORS[session?.role ?? "staff"]}`}>
-            {session?.role}
-          </span>
-        </p>
+    <div className="max-w-2xl mx-auto space-y-6 rms-stagger">
+      <div className="flex items-center gap-3.5">
+        <div className="hidden sm:flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl brand-gradient text-white shadow-lg shadow-primary/20">
+          <UserCircle className="h-[22px] w-[22px]" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight">{p.title}</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {p.yourRole}:{" "}
+            <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${ROLE_COLORS[session?.role ?? "staff"]}`}>
+              {session?.role}
+            </span>
+          </p>
+        </div>
       </div>
 
       {/* Personal info */}
@@ -357,6 +362,10 @@ export default function ProfilePage() {
             {members.map((member) => {
               const isSelf = session?.userId === member.id;
               const isOwner = member.role === "owner";
+              // Owner can manage admins + staff; admin can manage staff only.
+              const canManageThis =
+                !isSelf && !isOwner &&
+                (member.role !== "admin" || session?.role === "owner");
               return (
                 <div key={member.id} className="flex items-center gap-3 py-1">
                   <Avatar className="h-8 w-8 flex-shrink-0">
@@ -373,7 +382,7 @@ export default function ProfilePage() {
                     </p>
                     <p className="text-xs text-muted-foreground truncate">{member.email}</p>
                   </div>
-                  {!isSelf && !isOwner ? (
+                  {canManageThis ? (
                     <>
                       <Select
                         value={member.role}

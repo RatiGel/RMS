@@ -23,7 +23,7 @@ export default function RegisterPage() {
     <div className="space-y-6">
       <div className="space-y-1.5">
         <h1 className="text-2xl font-bold tracking-tight">Create account</h1>
-        <p className="text-sm text-muted-foreground">Set up your organization and get started with RMS</p>
+        <p className="text-sm text-muted-foreground">Set up your organization and get started with Qiravo</p>
       </div>
 
       <form action={action} className="space-y-5">

@@ -71,6 +71,6 @@ export function generateMfaSecret(): string {
   return base32Encode(crypto.randomBytes(20));
 }
 
-export function getTotpUri(secret: string, email: string, issuer = "RMS Super Admin"): string {
+export function getTotpUri(secret: string, email: string, issuer = "Qiravo Super Admin"): string {
   return `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(email)}?secret=${secret}&issuer=${encodeURIComponent(issuer)}&algorithm=SHA1&digits=6&period=30`;
 }

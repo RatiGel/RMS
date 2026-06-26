@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-geist-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -55,8 +55,12 @@
   --card-foreground: oklch(0.16 0.03 256);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.16 0.03 256);
-  --primary: oklch(0.51 0.13 245);
+  --primary: oklch(0.55 0.205 256);
   --primary-foreground: oklch(0.99 0 0);
+  /* Brand gradient stops + glow — used across landing + dashboard */
+  --brand-from: oklch(0.48 0.19 262);
+  --brand-to: oklch(0.56 0.16 238);
+  --brand-glow: oklch(0.55 0.2 256 / 0.35);
   --secondary: oklch(0.95 0.012 250);
   --secondary-foreground: oklch(0.25 0.04 256);
   --muted: oklch(0.95 0.012 250);
@@ -66,8 +70,8 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.89 0.012 250);
   --input: oklch(0.89 0.012 250);
-  --ring: oklch(0.51 0.13 245);
-  --chart-1: oklch(0.51 0.13 245);
+  --ring: oklch(0.55 0.205 256);
+  --chart-1: oklch(0.55 0.205 256);
   --chart-2: oklch(0.548 0.174 151);
   --chart-3: oklch(0.703 0.191 64);
   --chart-4: oklch(0.577 0.245 27.325);
@@ -90,8 +94,11 @@
   --card-foreground: oklch(0.97 0.006 250);
   --popover: oklch(0.21 0.03 256);
   --popover-foreground: oklch(0.97 0.006 250);
-  --primary: oklch(0.62 0.15 240);
+  --primary: oklch(0.66 0.18 256);
   --primary-foreground: oklch(0.16 0.028 256);
+  --brand-from: oklch(0.58 0.19 262);
+  --brand-to: oklch(0.66 0.15 238);
+  --brand-glow: oklch(0.6 0.2 256 / 0.4);
   --secondary: oklch(0.26 0.03 256);
   --secondary-foreground: oklch(0.97 0.006 250);
   --muted: oklch(0.26 0.03 256);
@@ -101,8 +108,8 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 13%);
-  --ring: oklch(0.62 0.15 240);
-  --chart-1: oklch(0.62 0.15 240);
+  --ring: oklch(0.66 0.18 256);
+  --chart-1: oklch(0.66 0.18 256);
   --chart-2: oklch(0.65 0.155 151);
   --chart-3: oklch(0.78 0.168 64);
   --chart-4: oklch(0.704 0.191 22.216);
@@ -126,5 +133,64 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+/* ---- Landing entrance motion ---- */
+@keyframes rms-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.rms-rise {
+  animation: rms-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ---- Dashboard staggered entrance ---- */
+@keyframes rms-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.rms-stagger > * {
+  animation: rms-fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.rms-stagger > *:nth-child(1) { animation-delay: 0.02s; }
+.rms-stagger > *:nth-child(2) { animation-delay: 0.07s; }
+.rms-stagger > *:nth-child(3) { animation-delay: 0.12s; }
+.rms-stagger > *:nth-child(4) { animation-delay: 0.17s; }
+.rms-stagger > *:nth-child(5) { animation-delay: 0.22s; }
+.rms-stagger > *:nth-child(6) { animation-delay: 0.27s; }
+
+/* ---- Brand gradient helpers ---- */
+.brand-gradient {
+  background-image: linear-gradient(135deg, var(--brand-from), var(--brand-to));
+}
+.brand-text {
+  background-image: linear-gradient(135deg, var(--brand-from), var(--brand-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---- Slow ambient drift for hero mesh ---- */
+@keyframes rms-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(2%, -3%) scale(1.06); }
+}
+.rms-drift { animation: rms-drift 14s ease-in-out infinite; }
+
+/* ---- Subtle dotted grid backdrop ---- */
+.rms-grid {
+  background-image: radial-gradient(currentColor 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rms-rise,
+  .rms-stagger > *,
+  .rms-drift {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
   }
 }

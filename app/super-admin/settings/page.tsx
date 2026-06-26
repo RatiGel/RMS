@@ -65,7 +65,7 @@ export default function SettingsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Platform Settings</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Global configuration for the RMS platform</p>
+          <p className="text-sm text-muted-foreground mt-0.5">Global configuration for the Qiravo platform</p>
         </div>
         <Button onClick={() => saveMut.mutate(form!)} disabled={saveMut.isPending || !isDirty} className="gap-2 h-9">
           <Save className="h-4 w-4" /> {saveMut.isPending ? "Saving…" : isDirty ? "Save changes" : "Saved"}

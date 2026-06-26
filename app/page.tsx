@@ -87,16 +87,13 @@ export default function LandingPage() {
       {/* Top bar */}
       <header className="sticky top-0 z-50 border-b border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md">
         <nav className="max-w-7xl mx-auto flex h-16 items-center justify-between px-6">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-700 text-white">
-              <Boxes className="h-4 w-4" />
-            </div>
-            <span className="font-bold text-lg tracking-tight">RMS</span>
+          <Link href="/" className="flex items-center">
+            <span className="font-extrabold text-xl tracking-tight brand-text">Qiravo</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600 dark:text-slate-300">
             <a href="#features" className="hover:text-blue-700 dark:hover:text-blue-400 transition-colors cursor-pointer">Features</a>
-            <a href="#why" className="hover:text-blue-700 dark:hover:text-blue-400 transition-colors cursor-pointer">Why RMS</a>
+            <a href="#why" className="hover:text-blue-700 dark:hover:text-blue-400 transition-colors cursor-pointer">Why Qiravo</a>
             <a href="#pricing" className="hover:text-blue-700 dark:hover:text-blue-400 transition-colors cursor-pointer">Pricing</a>
             <a href="#testimonials" className="hover:text-blue-700 dark:hover:text-blue-400 transition-colors cursor-pointer">Customers</a>
           </div>
@@ -134,7 +131,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/register"
-              className="inline-flex items-center gap-1.5 text-sm bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-semibold transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-sm brand-gradient text-white px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer shadow-md shadow-blue-700/20 hover:shadow-lg hover:shadow-blue-700/30 hover:-translate-y-0.5"
             >
               {l.hero.cta1}
             </Link>
@@ -144,25 +141,34 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 border-b border-slate-200/70 dark:border-white/10">
-        <div className="max-w-7xl mx-auto px-6 pt-20 pb-16 lg:pt-28 text-center">
-          <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 text-blue-700 dark:text-blue-300 text-xs font-semibold px-3.5 py-1.5 rounded-full">
+        {/* Ambient glow mesh */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="rms-drift absolute -top-24 left-1/2 h-[420px] w-[680px] -translate-x-1/2 rounded-full bg-blue-400/25 dark:bg-blue-500/20 blur-[120px]" />
+          <div className="rms-drift absolute top-10 -right-20 h-72 w-72 rounded-full bg-indigo-400/20 dark:bg-indigo-500/15 blur-[100px]" style={{ animationDelay: "-5s" }} />
+          <div className="rms-drift absolute top-40 -left-20 h-72 w-72 rounded-full bg-sky-300/20 dark:bg-cyan-500/15 blur-[100px]" style={{ animationDelay: "-9s" }} />
+        </div>
+        {/* Dotted grid backdrop */}
+        <div aria-hidden className="rms-grid pointer-events-none absolute inset-0 text-slate-300/40 dark:text-white/[0.04] [mask-image:radial-gradient(ellipse_at_center,black,transparent_75%)]" />
+
+        <div className="relative max-w-7xl mx-auto px-6 pt-20 pb-16 lg:pt-28 text-center">
+          <div className="rms-rise inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 text-blue-700 dark:text-blue-300 text-xs font-semibold px-3.5 py-1.5 rounded-full">
             <ShieldCheck className="h-3.5 w-3.5" />
             {l.hero.badge}
           </div>
 
-          <h1 className="mt-6 text-3xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] tracking-tight max-w-4xl mx-auto break-words hyphens-auto">
+          <h1 className="rms-rise mt-6 text-4xl sm:text-6xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight max-w-4xl mx-auto break-words hyphens-auto" style={{ animationDelay: "0.05s" }}>
             {l.hero.headline}{" "}
-            <span className="text-blue-700 dark:text-blue-400">{l.hero.headlineAccent}</span>
+            <span className="brand-text">{l.hero.headlineAccent}</span>
           </h1>
 
-          <p className="mt-6 text-slate-600 dark:text-slate-400 text-lg leading-relaxed max-w-2xl mx-auto">
+          <p className="rms-rise mt-6 text-slate-600 dark:text-slate-400 text-lg leading-relaxed max-w-2xl mx-auto" style={{ animationDelay: "0.1s" }}>
             {l.hero.subtitle}
           </p>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <div className="rms-rise mt-8 flex flex-wrap justify-center gap-3" style={{ animationDelay: "0.15s" }}>
             <Link
               href="/register"
-              className="inline-flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors text-sm cursor-pointer"
+              className="inline-flex items-center gap-2 brand-gradient text-white px-7 py-3.5 rounded-xl font-semibold transition-all text-sm cursor-pointer shadow-lg shadow-blue-700/25 hover:shadow-xl hover:shadow-blue-700/35 hover:-translate-y-0.5"
             >
               {l.hero.cta1}
               <ArrowRight className="h-4 w-4" />
@@ -175,10 +181,10 @@ export default function LandingPage() {
             </Link>
           </div>
 
-          <p className="mt-4 text-xs text-slate-400 dark:text-slate-500">{l.cta.subtitle}</p>
+          <p className="rms-rise mt-4 text-xs text-slate-400 dark:text-slate-500" style={{ animationDelay: "0.2s" }}>{l.cta.subtitle}</p>
 
           {/* Product screenshot */}
-          <div className="mt-14 max-w-5xl mx-auto">
+          <div className="rms-rise mt-14 max-w-5xl mx-auto" style={{ animationDelay: "0.25s" }}>
             <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 shadow-2xl shadow-slate-900/10 dark:shadow-black/40 overflow-hidden text-left">
               <div className="flex items-center gap-1.5 px-4 py-3 border-b border-slate-100 dark:border-white/8 bg-slate-50 dark:bg-white/5">
                 <div className="h-2.5 w-2.5 rounded-full bg-red-400" />
@@ -238,7 +244,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
             {stats.map(({ value, label }) => (
               <div key={label}>
-                <div className="text-3xl lg:text-4xl font-extrabold tracking-tight text-blue-700 dark:text-blue-400">{value}</div>
+                <div className="text-4xl lg:text-5xl font-extrabold tracking-tight brand-text">{value}</div>
                 <div className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">{label}</div>
               </div>
             ))}
@@ -317,7 +323,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center max-w-2xl mx-auto mb-14">
             <h2 className="text-3xl lg:text-4xl font-bold tracking-tight">Loved by rental businesses</h2>
-            <p className="mt-4 text-slate-600 dark:text-slate-400 text-lg">Teams switch to RMS and never look back.</p>
+            <p className="mt-4 text-slate-600 dark:text-slate-400 text-lg">Teams switch to Qiravo and never look back.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {testimonials.map((tm) => (
@@ -396,9 +402,11 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="bg-blue-700 dark:bg-blue-800">
-        <div className="max-w-4xl mx-auto px-6 py-20 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white tracking-tight">{l.cta.title}</h2>
+      <section className="relative overflow-hidden brand-gradient">
+        <div aria-hidden className="rms-grid pointer-events-none absolute inset-0 text-white/10" />
+        <div aria-hidden className="pointer-events-none absolute -top-20 left-1/4 h-72 w-72 rounded-full bg-white/15 blur-3xl" />
+        <div className="relative max-w-4xl mx-auto px-6 py-24 text-center">
+          <h2 className="text-3xl lg:text-5xl font-extrabold text-white tracking-tight">{l.cta.title}</h2>
           <p className="mt-4 text-blue-100 text-lg">{l.cta.subtitle}</p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Link href="/register" className="inline-flex items-center gap-2 bg-white text-blue-700 hover:bg-blue-50 px-8 py-3.5 rounded-lg font-bold text-sm transition-colors cursor-pointer">
@@ -417,11 +425,8 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-6 pt-16 pb-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
             <div className="col-span-2 md:col-span-1 space-y-4">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-700 text-white">
-                  <Boxes className="h-4 w-4" />
-                </div>
-                <span className="font-bold text-base text-white">RMS</span>
+              <div className="flex items-center">
+                <span className="font-extrabold text-lg text-white tracking-tight">Qiravo</span>
               </div>
               <p className="text-sm leading-relaxed max-w-[210px]">Modern rental management for teams that move fast.</p>
               <div className="flex items-center gap-3 pt-1">
@@ -489,7 +494,7 @@ export default function LandingPage() {
 
           <div className="h-px bg-white/8" />
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 text-xs text-slate-500">
-            <p>&copy; {new Date().getFullYear()} RMS — Rental Management System. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Qiravo — Rental Management System. All rights reserved.</p>
             <div className="flex items-center gap-1.5">
               <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               <span>All systems operational</span>
@@ -525,7 +530,7 @@ function PlanCard({
     <div
       className={`relative rounded-2xl p-7 flex flex-col gap-6 ${
         featured
-          ? "bg-blue-700 dark:bg-blue-800 text-white shadow-xl shadow-blue-900/20"
+          ? "brand-gradient text-white shadow-xl shadow-blue-900/25 scale-[1.02]"
           : "bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10"
       }`}
     >

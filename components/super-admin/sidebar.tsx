@@ -41,13 +41,12 @@ export function SuperAdminSidebar() {
         collapsed ? "w-16" : "w-60"
       )}
     >
-      <div className="flex h-16 items-center gap-2.5 px-4 border-b">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground flex-shrink-0 shadow-sm">
-          <ShieldCheck className="h-4 w-4" />
-        </div>
-        {!collapsed && (
+      <div className={cn("flex h-16 items-center border-b", collapsed ? "justify-center px-3" : "px-4")}>
+        {collapsed ? (
+          <span className="font-extrabold text-xl tracking-tight brand-text">Q</span>
+        ) : (
           <div className="flex flex-col">
-            <span className="font-bold text-base tracking-tight leading-tight">RMS</span>
+            <span className="font-extrabold text-xl tracking-tight brand-text leading-tight">Qiravo</span>
             <span className="text-[10px] text-muted-foreground leading-tight font-medium tracking-wide uppercase">Super Admin</span>
           </div>
         )}

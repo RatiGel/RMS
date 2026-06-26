@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search, Eye } from "lucide-react";
+import { Plus, Search, Eye, FileText } from "lucide-react";
+import { PageHeader } from "@/components/layout/page-header";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
@@ -74,16 +75,17 @@ export default function InvoicesPage() {
     .replace("{outstanding}", formatCurrency(totals.outstanding));
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t.invoices.title}</h1>
-          <p className="text-muted-foreground text-sm mt-1">{subtitle}</p>
-        </div>
-        <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" /> {t.invoices.newInvoice}
-        </Button>
-      </div>
+    <div className="space-y-6 rms-stagger">
+      <PageHeader
+        icon={FileText}
+        title={t.invoices.title}
+        subtitle={subtitle}
+        action={
+          <Button onClick={() => setCreateOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" /> {t.invoices.newInvoice}
+          </Button>
+        }
+      />
 
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-48">

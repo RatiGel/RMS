@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search, Filter, Pencil, Trash2, Tag } from "lucide-react";
+import { Plus, Search, Filter, Pencil, Trash2, Tag, Package } from "lucide-react";
+import { PageHeader } from "@/components/layout/page-header";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -98,18 +99,17 @@ export default function InventoryPage() {
     .replace("{maintenance}", counts.maintenance.toString());
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t.inventory.title}</h1>
-          <p className="text-muted-foreground text-sm mt-1">{subtitle}</p>
-        </div>
-        {!isStaff && (
+    <div className="space-y-6 rms-stagger">
+      <PageHeader
+        icon={Package}
+        title={t.inventory.title}
+        subtitle={subtitle}
+        action={!isStaff && (
           <Button onClick={() => { setEditingAsset(null); setDialogOpen(true); }}>
             <Plus className="h-4 w-4 mr-2" /> {t.inventory.addAsset}
           </Button>
         )}
-      </div>
+      />
 
       {canManageCategories && (
         <div className="rounded-xl border bg-muted/30 p-4 space-y-3">

@@ -57,14 +57,14 @@ export function Header({ userName = "User", orgName = "My Organization", avatarU
   const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   return (
-    <header className="flex h-14 items-center gap-3 border-b border-border bg-card/95 backdrop-blur-sm px-4 shadow-sm">
+    <header className="flex h-16 items-center gap-3 border-b border-border bg-card/70 backdrop-blur-xl px-4 sm:px-6">
       {/* Search */}
-      <div className="flex-1 max-w-xs">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+      <div className="flex-1 max-w-sm">
+        <div className="relative group">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
           <Input
             placeholder={t.header.searchPlaceholder}
-            className="pl-8 h-8 text-sm bg-background/60 border-border/60 focus-visible:bg-background"
+            className="pl-9 h-9 text-sm bg-muted/50 border-transparent rounded-xl focus-visible:bg-background focus-visible:border-border transition-colors"
           />
         </div>
       </div>
@@ -107,11 +107,11 @@ export function Header({ userName = "User", orgName = "My Organization", avatarU
         {/* Theme toggle */}
         <button
           onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-          className="flex items-center justify-center rounded-lg border border-border p-1.5 hover:bg-accent transition-colors cursor-pointer"
+          className="flex items-center justify-center rounded-lg border border-border p-2 hover:bg-accent transition-colors cursor-pointer"
           aria-label="Toggle theme"
         >
-          <Sun className="h-3.5 w-3.5 hidden dark:block" />
-          <Moon className="h-3.5 w-3.5 dark:hidden" />
+          <Sun className="h-4 w-4 hidden dark:block" />
+          <Moon className="h-4 w-4 dark:hidden" />
         </button>
 
         <NotificationBell />
@@ -128,10 +128,10 @@ export function Header({ userName = "User", orgName = "My Organization", avatarU
 
         {/* User menu */}
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-accent transition-colors outline-none ml-1">
-            <Avatar className="h-6 w-6">
+          <DropdownMenuTrigger className="flex items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-accent transition-colors outline-none ml-1 cursor-pointer">
+            <Avatar className="h-7 w-7 ring-2 ring-primary/20">
               <AvatarImage src={avatarUrl} alt={userName} />
-              <AvatarFallback className="text-[10px] bg-primary text-primary-foreground font-semibold">
+              <AvatarFallback className="text-[10px] brand-gradient text-white font-bold">
                 {initials(userName)}
               </AvatarFallback>
             </Avatar>

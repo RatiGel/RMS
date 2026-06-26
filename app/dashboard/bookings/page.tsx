@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Search, List, CalendarRange } from "lucide-react";
+import { PageHeader } from "@/components/layout/page-header";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -64,18 +65,17 @@ export default function BookingsPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t.bookings.title}</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            {t.bookings.subtitle.replace("{total}", bookings.length.toString())}
-          </p>
-        </div>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" /> {t.bookings.newBooking}
-        </Button>
-      </div>
+    <div className="space-y-6 rms-stagger">
+      <PageHeader
+        icon={CalendarRange}
+        title={t.bookings.title}
+        subtitle={t.bookings.subtitle.replace("{total}", bookings.length.toString())}
+        action={
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" /> {t.bookings.newBooking}
+          </Button>
+        }
+      />
 
       {/* View toggle */}
       <div className="flex items-center gap-1 rounded-lg border p-0.5 w-fit">

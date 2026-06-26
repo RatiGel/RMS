@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Copy, RefreshCw, Trash2, Shield, UserCheck, UserCog } from "lucide-react";
+import { Copy, RefreshCw, Trash2, Shield, UserCheck, UserCog, UsersRound } from "lucide-react";
+import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -93,13 +94,12 @@ export default function TeamPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Team</h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          {members.length} member{members.length !== 1 ? "s" : ""} in your organization
-        </p>
-      </div>
+    <div className="space-y-6 rms-stagger">
+      <PageHeader
+        icon={UsersRound}
+        title="Team"
+        subtitle={`${members.length} member${members.length !== 1 ? "s" : ""} in your organization`}
+      />
 
       {canManage && (
         <Card>
@@ -153,6 +153,10 @@ export default function TeamPage() {
               {members.map((member) => {
                 const isSelf = member.id === session?.userId;
                 const isOwner = member.role === "owner";
+                // Owner can manage admins + staff; admin can manage staff only.
+                const canManageThis =
+                  canManage && !isSelf && !isOwner &&
+                  (member.role !== "admin" || session?.role === "owner");
                 return (
                   <div key={member.id} className="flex items-center gap-4 px-6 py-4">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold text-sm flex-shrink-0">
@@ -165,7 +169,7 @@ export default function TeamPage() {
                       </p>
                       <p className="text-xs text-muted-foreground truncate">{member.email}</p>
                     </div>
-                    {canManage && !isSelf && !isOwner ? (
+                    {canManageThis ? (
                       <Select
                         value={member.role}
                         onValueChange={(v) => {
@@ -186,7 +190,7 @@ export default function TeamPage() {
                         {ROLE_LABELS[member.role]}
                       </div>
                     )}
-                    {canManage && !isSelf && !isOwner && (
+                    {canManageThis && (
                       <Button
                         variant="ghost"
                         size="icon"

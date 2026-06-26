@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { UpgradeDialog } from "@/components/subscription/upgrade-dialog";
 import { useTheme } from "next-themes";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, Settings as SettingsIcon } from "lucide-react";
+import { PageHeader } from "@/components/layout/page-header";
 import { useEffect, useState } from "react";
 
 const LANGUAGES: Record<Locale, string> = {
@@ -55,11 +56,8 @@ export default function SettingsPage() {
       : s.unlimitedAssets;
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">{t.settings.title}</h1>
-        <p className="text-sm text-muted-foreground mt-1">{t.settings.subtitle}</p>
-      </div>
+    <div className="max-w-2xl mx-auto space-y-6 rms-stagger">
+      <PageHeader icon={SettingsIcon} title={t.settings.title} subtitle={t.settings.subtitle} />
 
       {/* Billing & Plan card */}
       <Card>

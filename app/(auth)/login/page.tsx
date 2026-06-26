@@ -33,7 +33,7 @@ export default function LoginPage() {
     <div className="space-y-6">
       <div className="space-y-1.5">
         <h1 className="text-2xl font-bold tracking-tight">Sign in</h1>
-        <p className="text-sm text-muted-foreground">Enter your email and password to access RMS</p>
+        <p className="text-sm text-muted-foreground">Enter your email and password to access Qiravo</p>
       </div>
 
       <Suspense>
